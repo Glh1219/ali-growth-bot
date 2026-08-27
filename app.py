@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 # ============ 配置 ============
 ZHIPU_API_KEY = os.environ.get("ZHIPU_API_KEY", "")
-WX_TOKEN = os.environ.get("WX_TOKEN", "ali-growth-2024")
+WX_TOKEN = os.environ.get("WX_TOKEN", "aligrowth2024")
 WX_AES_KEY = os.environ.get("WX_AES_KEY", "")
 
 # 初始化智谱AI客户端
