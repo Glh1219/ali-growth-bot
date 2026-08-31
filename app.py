@@ -371,48 +371,175 @@ REPORT_HTML_TEMPLATE = """
 <title>阿鲤的成长记录</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,"Microsoft YaHei",sans-serif; background:#f0f2f5; color:#333; padding-bottom:40px; }
-  .header { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px 20px; text-align:center; }
-  .header h1 { font-size:28px; margin-bottom:8px; }
-  .header .info { font-size:14px; opacity:0.9; }
-  .container { max-width:1000px; margin:20px auto; padding:0 16px; }
-  .card { background:white; border-radius:12px; padding:24px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-  .card h2 { font-size:20px; margin-bottom:16px; color:#333; border-left:4px solid #667eea; padding-left:12px; }
-  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
-  .stat-box { background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%); border-radius:10px; padding:20px; text-align:center; }
-  .stat-box .label { font-size:13px; color:#666; margin-bottom:6px; }
-  .stat-box .value { font-size:24px; font-weight:bold; }
-  .stat-box .unit { font-size:14px; color:#888; }
-  .chart-container { position:relative; height:350px; margin:10px 0; }
-  table { width:100%; border-collapse:collapse; margin-top:12px; }
-  th,td { padding:10px 14px; text-align:left; border-bottom:1px solid #eee; font-size:14px; }
-  th { background:#f8f9fa; font-weight:600; color:#555; }
-  .badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; }
-  .badge-vaccine { background:#d1ecf1; color:#0c5460; }
-  .badge-birth { background:#fff3cd; color:#856404; }
-  .badge-checkup { background:#e2d9f3; color:#4a148c; }
-  .section-empty { text-align:center; color:#999; padding:20px; }
-  @media(max-width:600px){ .stats-grid{grid-template-columns:1fr 1fr;} .card{padding:16px;} }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;color:#333;padding-bottom:40px;}
+  .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px 20px;text-align:center;}
+  .header h1{font-size:28px;margin-bottom:8px;}
+  .header .info{font-size:14px;opacity:0.9;}
+  .container{max-width:1000px;margin:20px auto;padding:0 16px;}
+  .card{background:white;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+  .card h2{font-size:20px;margin-bottom:16px;color:#333;border-left:4px solid #667eea;padding-left:12px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+  .stat-box{background:linear-gradient(135deg,#f5f7fa 0%,#e3e8f0 100%);border-radius:10px;padding:16px 12px;text-align:center;position:relative;overflow:hidden;}
+  .stat-box .label{font-size:12px;color:#888;margin-bottom:4px;}
+  .stat-box .value{font-size:22px;font-weight:bold;color:#333;}
+  .stat-box .unit{font-size:12px;color:#aaa;margin-left:2px;}
+  .stat-box .extra{font-size:11px;color:#667eea;margin-top:4px;font-weight:500;}
+  .stat-box.highlight{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+  .stat-box.highlight .label,.stat-box.highlight .extra{color:rgba(255,255,255,0.8);}
+  .stat-box.highlight .value,.stat-box.highlight .unit{color:#fff;}
+  .stat-row{display:flex;align-items:center;gap:8px;justify-content:center;}
+  .trend-up{color:#4caf50;font-size:14px;}
+  .trend-down{color:#f44336;font-size:14px;}
+  .trend-flat{color:#999;font-size:14px;}
+  .percentile-bar{margin-top:8px;height:6px;border-radius:3px;background:linear-gradient(90deg,#ff8a80 0%,#ff8a80 15%,#a5d6a7 15%,#a5d6a7 85%,#ff8a80 85%);position:relative;}
+  .percentile-marker{position:absolute;top:-3px;width:3px;height:12px;background:#667eea;border-radius:2px;transform:translateX(-50%);}
+  .next-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8f9ff;border-radius:8px;margin-top:8px;font-size:14px;}
+  .next-item .icon{font-size:20px;flex-shrink:0;}
+  .next-item .info{flex:1;}
+  .next-item .info .name{font-weight:600;color:#333;}
+  .next-item .info .date{font-size:12px;color:#888;margin-top:2px;}
+  .next-item .countdown{font-size:13px;font-weight:600;color:#667eea;white-space:nowrap;}
+  .chart-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;}
+  .chart-controls .ctrl-group{display:flex;align-items:center;gap:6px;}
+  .chart-controls label{font-size:13px;color:#666;}
+  .chart-controls select{padding:4px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;outline:none;}
+  .chart-controls select:focus{border-color:#667eea;}
+  .chart-container{position:relative;height:380px;margin:10px 0;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #eee;font-size:14px;}
+  th{background:#f8f9fa;font-weight:600;color:#555;}
+  .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;}
+  .badge-vaccine{background:#d1ecf1;color:#0c5460;}
+  .badge-birth{background:#fff3cd;color:#856404;}
+  .badge-checkup{background:#e2d9f3;color:#4a148c;}
+  .section-empty{text-align:center;color:#999;padding:20px;}
+  @media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}.card{padding:16px;}.chart-container{height:300px;}}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>阿鲤的成长记录</h1>
-  <div class="info">出生：{{ birth_date }} | 男 | 出生47cm/1650g</div>
+  <div class="info">出生：{{ birth_date }} | 男 | 早产低体重儿（出生47cm/1650g）</div>
 </div>
 <div class="container">
   <div class="card">
     <h2>成长概览</h2>
     <div class="stats-grid">
-      <div class="stat-box"><div class="label">当前月龄</div><div class="value">{{ age_months }}<span class="unit">月</span></div></div>
-      <div class="stat-box"><div class="label">最新身高</div><div class="value">{{ latest_height }}<span class="unit">cm</span></div></div>
-      <div class="stat-box"><div class="label">最新体重</div><div class="value">{{ latest_weight }}<span class="unit">kg</span></div></div>
-      <div class="stat-box"><div class="label">记录总数</div><div class="value">{{ total_records }}<span class="unit">条</span></div></div>
+      <div class="stat-box highlight">
+        <div class="label">当前月龄</div>
+        <div class="stat-row"><div class="value">{{ age_months }}<span class="unit">月</span></div></div>
+        <div class="extra">{{ age_years }}岁{{ age_months_remainder }}月</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">最新身高</div>
+        <div class="stat-row"><div class="value">{{ latest_height }}<span class="unit">cm</span></div></div>
+        <div class="extra">{{ height_percentile_desc }}</div>
+        <div class="percentile-bar"><div class="percentile-marker" style="left:{{ height_percentile_pos }}%"></div></div>
+      </div>
+      <div class="stat-box">
+        <div class="label">最新体重</div>
+        <div class="stat-row"><div class="value">{{ latest_weight }}<span class="unit">kg</span></div></div>
+        <div class="extra">{{ weight_percentile_desc }}</div>
+        <div class="percentile-bar"><div class="percentile-marker" style="left:{{ weight_percentile_pos }}%"></div></div>
+      </div>
+      <div class="stat-box">
+        <div class="label">BMI</div>
+        <div class="stat-row"><div class="value">{{ bmi }}<span class="unit"></span></div></div>
+        <div class="extra">{{ bmi_desc }}</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">身高增速</div>
+        <div class="stat-row"><div class="value">{{ height_growth_rate }}<span class="unit">cm/月</span></div></div>
+        <div class="extra">近{{ growth_rate_months }}个月</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">体重增速</div>
+        <div class="stat-row"><div class="value">{{ weight_growth_rate }}<span class="unit">kg/月</span></div></div>
+        <div class="extra">近{{ growth_rate_months }}个月</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">较出生增长</div>
+        <div class="stat-row">
+          <div class="value" style="font-size:16px;">{{ height_gain }}cm / {{ weight_gain }}kg</div>
+        </div>
+        <div class="extra">身高+{{ height_gain_pct }}% / 体重+{{ weight_gain_pct }}%</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">记录总数</div>
+        <div class="stat-row"><div class="value">{{ total_records }}<span class="unit">条</span></div></div>
+        <div class="extra">就医{{ medical_count }} / 疫苗{{ vaccine_count }}</div>
+      </div>
     </div>
+    {% if next_items %}
+    <div style="margin-top:16px;">
+      <div style="font-size:14px;color:#666;margin-bottom:4px;">📅 近期节点</div>
+      {% for item in next_items %}
+      <div class="next-item">
+        <div class="icon">{{ item.icon }}</div>
+        <div class="info">
+          <div class="name">{{ item.name }}</div>
+          <div class="date">{{ item.date }}</div>
+        </div>
+        <div class="countdown">{{ item.countdown }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
-  <div class="card"><h2>身高生长曲线</h2><div class="chart-container"><canvas id="heightChart"></canvas></div></div>
-  <div class="card"><h2>体重生长曲线</h2><div class="chart-container"><canvas id="weightChart"></canvas></div></div>
+
+  <div class="card">
+    <h2>身高生长曲线</h2>
+    <div class="chart-controls">
+      <div class="ctrl-group"><label>区间</label><select id="heightRange" onchange="updateChart('height')">
+        <option value="0-60">0-60月（全部）</option>
+        <option value="0-24">0-24月</option>
+        <option value="0-36">0-36月</option>
+        <option value="0-12">0-12月</option>
+        <option value="12-36">12-36月</option>
+        <option value="24-60">24-60月</option>
+      </select></div>
+      <div class="ctrl-group"><label>颗粒度</label><select id="heightStep" onchange="updateChart('height')">
+        <option value="all">标准节点</option>
+        <option value="1">每月</option>
+        <option value="3">每3月</option>
+        <option value="6">每6月</option>
+      </select></div>
+      <div class="ctrl-group"><label>WHO百分位</label><select id="heightPercentiles" onchange="updateChart('height')">
+        <option value="all">全部(P3/P15/P50/P85/P97)</option>
+        <option value="350">P3/P50/P97</option>
+        <option value="50">仅P50</option>
+      </select></div>
+    </div>
+    <div class="chart-container"><canvas id="heightChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>体重生长曲线</h2>
+    <div class="chart-controls">
+      <div class="ctrl-group"><label>区间</label><select id="weightRange" onchange="updateChart('weight')">
+        <option value="0-60">0-60月（全部）</option>
+        <option value="0-24">0-24月</option>
+        <option value="0-36">0-36月</option>
+        <option value="0-12">0-12月</option>
+        <option value="12-36">12-36月</option>
+        <option value="24-60">24-60月</option>
+      </select></div>
+      <div class="ctrl-group"><label>颗粒度</label><select id="weightStep" onchange="updateChart('weight')">
+        <option value="all">标准节点</option>
+        <option value="1">每月</option>
+        <option value="3">每3月</option>
+        <option value="6">每6月</option>
+      </select></div>
+      <div class="ctrl-group"><label>WHO百分位</label><select id="weightPercentiles" onchange="updateChart('weight')">
+        <option value="all">全部(P3/P15/P50/P85/P97)</option>
+        <option value="350">P3/P50/P97</option>
+        <option value="50">仅P50</option>
+      </select></div>
+    </div>
+    <div class="chart-container"><canvas id="weightChart"></canvas></div>
+  </div>
+
   <div class="card"><h2>生长记录</h2>
     <table><thead><tr><th>日期</th><th>月龄</th><th>身高</th><th>体重</th><th>来源</th></tr></thead><tbody>
     {% for r in growth_records %}
@@ -440,61 +567,337 @@ REPORT_HTML_TEMPLATE = """
   {% endif %}
 </div>
 <script>
-const whoHeight={{ who_height|safe }};
-const whoWeight={{ who_weight|safe }};
+const allWhoHeight={{ who_height|safe }};
+const allWhoWeight={{ who_weight|safe }};
 const actualHeights={{ actual_heights|safe }};
 const actualWeights={{ actual_weights|safe }};
-function makeChart(id,title,who,actual,unit){
-  const ctx=document.getElementById(id).getContext('2d');
-  const allLabels=[...new Set([...who.map(d=>d[0]),...actual.map(d=>d[0])])].sort((a,b)=>a-b);
-  new Chart(ctx,{type:'line',data:{labels:allLabels,datasets:[
-    {label:'WHO P97',data:allLabels.map(m=>{const d=who.find(x=>x[0]===m);return d?d[3]:null}),borderColor:'#fcc',borderDash:[5,5],fill:false,pointRadius:0,tension:0.3},
-    {label:'WHO P50',data:allLabels.map(m=>{const d=who.find(x=>x[0]===m);return d?d[2]:null}),borderColor:'#6b6',borderDash:[3,3],fill:false,pointRadius:0,tension:0.3},
-    {label:'WHO P3',data:allLabels.map(m=>{const d=who.find(x=>x[0]===m);return d?d[1]:null}),borderColor:'#fcc',borderDash:[5,5],fill:false,pointRadius:0,tension:0.3},
-    {label:'实际测量',data:allLabels.map(m=>{const d=actual.find(x=>x[0]===m);return d?d[1]:null}),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.15)',borderWidth:3,fill:false,pointRadius:6,pointBackgroundColor:'#667eea',tension:0.3}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'月龄'}},y:{title:{display:true,text:unit},beginAtZero:false}}}});
+let heightChart=null,weightChart=null;
+
+function filterWhoData(whoData,range,step,percentileMode){
+  const [minM,maxM]=range.split('-').map(Number);
+  let months=whoData.map(d=>d[0]).filter(m=>m>=minM&&m<=maxM).sort((a,b)=>a-b);
+  if(step!=='all'){
+    const stepNum=Number(step);
+    months=months.filter(m=>m%stepNum===0);
+    if(!months.includes(minM))months.unshift(minM);
+    if(!months.includes(maxM))months.push(maxM);
+  }
+  let pCols;
+  if(percentileMode==='all')pCols=[1,2,3,4,5];
+  else if(percentileMode==='350')pCols=[1,3,5];
+  else pCols=[3];
+  return {months,pCols,whoData};
 }
-makeChart('heightChart','身高',whoHeight,actualHeights,'cm');
-makeChart('weightChart','体重',whoWeight,actualWeights,'kg');
+
+function buildChart(ctxId,whoData,actual,range,step,percentileMode,yLabel){
+  const [minM,maxM]=range.split('-').map(Number);
+  let months=whoData.map(d=>d[0]).filter(m=>m>=minM&&m<=maxM).sort((a,b)=>a-b);
+  if(step!=='all'){
+    const stepNum=Number(step);
+    // Keep full WHO key months but filter for display
+    months=months.filter(m=>m%stepNum===0);
+    if(!months.includes(minM))months.unshift(minM);
+    if(!months.includes(maxM))months.push(maxM);
+  }
+
+  let pCols;
+  const datasets=[];
+  const pConfig={
+    1:{label:'P3',color:'#ffab91',dash:[4,4]},
+    2:{label:'P15',color:'#ffcc80',dash:[2,3]},
+    3:{label:'P50',color:'#81c784',dash:[6,3]},
+    4:{label:'P85',color:'#ffcc80',dash:[2,3]},
+    5:{label:'P97',color:'#ffab91',dash:[4,4]}
+  };
+  if(percentileMode==='all')pCols=[1,2,3,4,5];
+  else if(percentileMode==='350')pCols=[1,3,5];
+  else pCols=[3];
+
+  pCols.forEach(col=>{
+    datasets.push({
+      label:pConfig[col].label,
+      data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[col]:null}),
+      borderColor:pConfig[col].color,
+      borderDash:pConfig[col].dash,
+      borderWidth:1.5,fill:false,pointRadius:0,tension:0.4,
+      order:2
+    });
+  });
+
+  // P3-P97 fill band
+  if(pCols.includes(1)&&pCols.includes(5)){
+    datasets.push({
+      label:'正常范围',
+      data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[5]:null}),
+      borderColor:'transparent',
+      backgroundColor:'rgba(129,199,132,0.08)',
+      fill:'+0',
+      pointRadius:0,
+      order:3
+    });
+    datasets.push({
+      label:'_p3fill',
+      data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[1]:null}),
+      borderColor:'transparent',
+      backgroundColor:'transparent',
+      fill:false,pointRadius:0,
+      order:3,
+      datalabels:{display:false}
+    });
+  }
+
+  // Actual data: ensure correct z-order (on top)
+  const filteredActual=actual.filter(d=>d[0]>=minM&&d[0]<=maxM);
+  datasets.push({
+    label:'实际测量',
+    data:filteredActual.map(d=>({x:d[0],y:d[1]})),
+    borderColor:'#667eea',
+    backgroundColor:'#667eea',
+    borderWidth:3,fill:false,
+    pointRadius:7,pointHoverRadius:9,
+    pointBackgroundColor:'#667eea',
+    pointBorderColor:'#fff',pointBorderWidth:2,
+    tension:0.3,
+    order:1,
+    parsing:{xAxisKey:'x',yAxisKey:'y'}
+  });
+
+  const ctx=document.getElementById(ctxId).getContext('2d');
+  return new Chart(ctx,{
+    type:'line',
+    data:{labels:months,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{usePointStyle:true,filter:item=>!item.text.startsWith('_')&&item.text!=='正常范围'||item.text==='正常范围'?true:false}},
+        tooltip:{callbacks:{label:function(ctx){const v=ctx.parsed.y;return ctx.dataset.label+': '+v+(yLabel==='cm'?'cm':'kg');}}}
+      },
+      scales:{
+        x:{type:'linear',title:{display:true,text:'月龄'},min:minM,max:maxM,
+           ticks:{stepSize:step==='all'?(maxM>24?6:3):Number(step)}},
+        y:{title:{display:true,text:yLabel},beginAtZero:false}
+      }
+    }
+  });
+}
+
+function updateChart(type){
+  if(type==='height'){
+    if(heightChart)heightChart.destroy();
+    const range=document.getElementById('heightRange').value;
+    const step=document.getElementById('heightStep').value;
+    const pm=document.getElementById('heightPercentiles').value;
+    heightChart=buildChart('heightChart',allWhoHeight,actualHeights,range,step,pm,'cm');
+  }else{
+    if(weightChart)weightChart.destroy();
+    const range=document.getElementById('weightRange').value;
+    const step=document.getElementById('weightStep').value;
+    const pm=document.getElementById('weightPercentiles').value;
+    weightChart=buildChart('weightChart',allWhoWeight,actualWeights,range,step,pm,'kg');
+  }
+}
+
+// Default: 0-36 month range, standard step, all percentiles
+document.getElementById('heightRange').value='0-36';
+document.getElementById('weightRange').value='0-36';
+updateChart('height');
+updateChart('weight');
 </script>
 </body></html>
 """
 
+
+def _calc_percentile(value, who_row):
+    """根据WHO数据行计算百分位描述和位置（0-100）"""
+    if not who_row or len(who_row) < 6:
+        return "暂无参考", 50
+    p3, p15, p50, p85, p97 = who_row[1], who_row[2], who_row[3], who_row[4], who_row[5]
+    if value < p3:
+        return "低于P3，需关注", 5
+    elif value < p15:
+        pct = 5 + (value - p3) / (p15 - p3) * 10
+        return "P3-P15区间", max(5, min(15, pct))
+    elif value < p50:
+        pct = 15 + (value - p15) / (p50 - p15) * 35
+        return "P15-P50区间", max(15, min(50, pct))
+    elif value < p85:
+        pct = 50 + (value - p50) / (p85 - p50) * 35
+        return "P50-P85区间", max(50, min(85, pct))
+    elif value < p97:
+        pct = 85 + (value - p85) / (p97 - p85) * 12
+        return "P85-P97区间", max(85, min(97, pct))
+    else:
+        return "高于P97，需关注", 99
+
+
+def _find_who_row(who_data, age_months):
+    """找到最接近的WHO月龄行"""
+    if not who_data:
+        return None
+    best = None
+    best_diff = 999
+    for row in who_data:
+        diff = abs(row[0] - age_months)
+        if diff < best_diff:
+            best_diff = diff
+            best = row
+    return best
+
+
 @app.route("/report")
 def report():
     """生成HTML成长报告页面"""
+    from datetime import datetime, timedelta
+
     data = load_data()
     birth_date = data["child"]["birth_date"]
-    birth = __import__("datetime").datetime.strptime(birth_date, "%Y-%m-%d")
-    now = __import__("datetime").datetime.now()
+    birth = datetime.strptime(birth_date, "%Y-%m-%d")
+    now = datetime.now()
     age_months = round((now - birth).days / 30.44, 1)
-    
+    age_years = int(age_months // 12)
+    age_months_remainder = int(age_months % 12)
+
     growth = data.get("growth_records", [])
-    
+
     # 计算月龄
     for r in growth:
-        record_date = __import__("datetime").datetime.strptime(r["date"], "%Y-%m-%d")
+        record_date = datetime.strptime(r["date"], "%Y-%m-%d")
         r["age_months"] = round((record_date - birth).days / 30.44, 1)
-    
-    latest_height = growth[-1]["height_cm"] if growth else "N/A"
-    latest_weight = growth[-1]["weight_kg"] if growth else "N/A"
-    
-    # WHO数据
-    who_height = [[0,46.1,49.9,53.7],[1,51.1,55.1,59.1],[3,57.6,61.7,65.7],[6,63.3,67.6,71.8],[9,67.5,71.9,76.4],[12,71.0,75.7,80.5],[18,76.9,81.7,86.7],[24,81.7,86.8,92.2],[30,85.6,90.9,96.5],[36,88.7,94.2,99.8]]
-    who_weight = [[0,2.5,3.3,4.3],[1,3.4,4.5,5.7],[3,5.0,6.4,7.9],[6,6.4,7.9,9.6],[9,7.1,8.9,10.8],[12,7.7,9.6,11.7],[18,8.8,10.9,13.3],[24,9.7,12.2,14.8],[30,10.2,12.9,15.7],[36,10.8,13.7,16.9]]
+
+    # WHO完整数据（0-60月，5个百分位列）
+    who_height = [
+        [0,46.1,48.0,49.9,51.8,53.7],[1,51.1,53.1,55.1,57.1,59.1],[2,54.7,56.7,58.7,60.7,62.7],
+        [3,57.6,59.6,61.7,63.7,65.7],[4,59.9,62.0,64.0,66.0,68.1],[5,61.8,63.9,65.9,67.9,69.9],
+        [6,63.3,65.4,67.6,69.7,71.8],[7,64.8,66.9,69.0,71.1,73.3],[8,66.2,68.3,70.5,72.6,74.8],
+        [9,67.5,69.7,71.9,74.2,76.4],[10,68.7,70.9,73.1,75.4,77.7],[11,69.9,72.1,74.4,76.6,78.9],
+        [12,71.0,73.3,75.7,78.1,80.5],[15,74.1,76.4,78.8,81.2,83.6],[18,76.9,79.2,81.7,84.2,86.7],
+        [21,79.4,81.7,84.1,86.5,89.0],[24,81.7,84.1,86.8,89.5,92.2],[27,83.7,86.1,88.8,91.5,94.3],
+        [30,85.6,88.2,90.9,93.7,96.5],[33,87.2,89.9,92.6,95.4,98.2],[36,88.7,91.4,94.2,97.0,99.8],
+        [42,91.6,94.4,97.2,100.1,103.0],[48,94.1,97.0,100.0,103.0,106.0],[54,96.5,99.4,102.4,105.5,108.6],
+        [60,98.7,101.8,105.0,108.2,111.3]
+    ]
+    who_weight = [
+        [0,2.5,2.9,3.3,3.9,4.3],[1,3.4,3.9,4.5,5.1,5.7],[2,4.3,4.9,5.6,6.3,7.0],
+        [3,5.0,5.7,6.4,7.2,7.9],[4,5.6,6.2,7.0,7.8,8.6],[5,6.0,6.7,7.5,8.3,9.1],
+        [6,6.4,7.1,7.9,8.8,9.6],[7,6.7,7.5,8.3,9.2,10.1],[8,7.0,7.8,8.6,9.5,10.5],
+        [9,7.1,7.9,8.9,9.8,10.8],[10,7.4,8.2,9.2,10.1,11.2],[11,7.6,8.4,9.4,10.4,11.5],
+        [12,7.7,8.5,9.6,10.6,11.7],[15,8.3,9.1,10.3,11.4,12.5],[18,8.8,9.6,10.9,12.0,13.3],
+        [21,9.2,10.1,11.4,12.7,14.1],[24,9.7,10.5,12.2,13.5,14.8],[27,10.0,10.9,12.6,14.0,15.3],
+        [30,10.2,11.1,12.9,14.3,15.7],[33,10.5,11.5,13.3,14.8,16.3],[36,10.8,11.8,13.7,15.3,16.9],
+        [42,11.3,12.3,14.3,16.1,17.9],[48,11.7,12.7,15.1,17.0,18.8],[54,12.1,13.0,15.8,17.9,20.0],
+        [60,12.4,13.3,16.5,18.8,20.7]
+    ]
+
     actual_heights = [[g["age_months"], g["height_cm"]] for g in growth]
     actual_weights = [[g["age_months"], g["weight_kg"]] for g in growth]
-    
+
+    latest_height = round(growth[-1]["height_cm"], 1) if growth else 0
+    latest_weight = round(growth[-1]["weight_kg"], 1) if growth else 0
+
+    # 百分位评估
+    h_who_row = _find_who_row(who_height, age_months)
+    w_who_row = _find_who_row(who_weight, age_months)
+    h_pct_desc, h_pct_pos = _calc_percentile(latest_height, h_who_row)
+    w_pct_desc, w_pct_pos = _calc_percentile(latest_weight, w_who_row)
+
+    # BMI
+    bmi = round(latest_weight / ((latest_height / 100) ** 2), 1) if latest_height > 0 else 0
+    bmi_who_row = None
+    for row in [[0,10.2,13.3,16.1,18.2],[6,13.7,16.7,18.2,19.9],[12,14.3,17.0,18.6,20.4],[24,13.7,16.2,18.0,19.8],[36,13.5,15.6,17.6,19.4]]:
+        if abs(row[0] - age_months) <= 6:
+            bmi_who_row = row
+            break
+    if bmi_who_row:
+        if bmi < bmi_who_row[1]:
+            bmi_desc = "偏低"
+        elif bmi < bmi_who_row[2]:
+            bmi_desc = "正常偏低"
+        elif bmi < bmi_who_row[3]:
+            bmi_desc = "正常"
+        elif bmi < bmi_who_row[4]:
+            bmi_desc = "正常偏高"
+        else:
+            bmi_desc = "超重"
+    else:
+        bmi_desc = "正常"
+
+    # 生长速率（最近N个月）
+    growth_rate_months = 6
+    if len(growth) >= 2:
+        recent = growth[-2:]
+        months_diff = (recent[1]["age_months"] - recent[0]["age_months"]) or 1
+        height_growth_rate = round((recent[1]["height_cm"] - recent[0]["height_cm"]) / months_diff, 2)
+        weight_growth_rate = round((recent[1]["weight_kg"] - recent[0]["weight_kg"]) / months_diff, 2)
+        growth_rate_months = int(months_diff)
+    else:
+        height_growth_rate = 0
+        weight_growth_rate = 0
+
+    # 较出生增长
+    birth_height = data["child"].get("birth_height_cm", 47)
+    birth_weight = data["child"].get("birth_weight_g", 1650) / 1000
+    height_gain = round(latest_height - birth_height, 1)
+    weight_gain = round(latest_weight - birth_weight, 1)
+    height_gain_pct = round(height_gain / birth_height * 100) if birth_height else 0
+    weight_gain_pct = round(weight_gain / birth_weight * 100) if birth_weight else 0
+
+    # 近期节点（体检/疫苗）
+    from datetime import date as dt_date
+    next_items = []
+    today = dt_date.today()
+# 体检节点
+    checkup_items = [
+        ("30月龄体检", "2026-09-12", "🏥"),
+        ("3岁体检", "2027-03-13", "🏥"),
+    ]
+    vaccine_items = [
+        ("A+C群流脑多糖疫苗(第1剂)", "2027-03-13", "💉"),
+    ]
+    for name, dstr, icon in checkup_items + vaccine_items:
+        try:
+            d = dt_date.fromisoformat(dstr)
+            days_left = (d - today).days
+            if days_left > 0:
+                if days_left <= 30:
+                    countdown = f"{days_left}天后"
+                elif days_left <= 90:
+                    countdown = f"约{days_left//7}周后"
+                else:
+                    countdown = f"约{round(days_left/30)}个月后"
+                next_items.append({"name": name, "date": dstr, "icon": icon, "countdown": countdown})
+        except:
+            pass
+    next_items = next_items[:4]  # 最多显示4个
+
     return render_template_string(
         REPORT_HTML_TEMPLATE,
         birth_date=birth_date,
         age_months=age_months,
+        age_years=age_years,
+        age_months_remainder=age_months_remainder,
         latest_height=latest_height,
         latest_weight=latest_weight,
         total_records=len(growth),
         growth_records=growth,
         medical_records=data.get("medical_records", []),
         vaccine_records=data.get("vaccine_records", []),
+        medical_count=len(data.get("medical_records", [])),
+        vaccine_count=len(data.get("vaccine_records", [])),
+        height_percentile_desc=h_pct_desc,
+        height_percentile_pos=round(h_pct_pos),
+        weight_percentile_desc=w_pct_desc,
+        weight_percentile_pos=round(w_pct_pos),
+        bmi=bmi,
+        bmi_desc=bmi_desc,
+        height_growth_rate=height_growth_rate,
+        weight_growth_rate=weight_growth_rate,
+        growth_rate_months=growth_rate_months,
+        height_gain=height_gain,
+        weight_gain=weight_gain,
+        height_gain_pct=height_gain_pct,
+        weight_gain_pct=weight_gain_pct,
+        next_items=next_items,
         who_height=json.dumps(who_height),
         who_weight=json.dumps(who_weight),
         actual_heights=json.dumps(actual_heights),
