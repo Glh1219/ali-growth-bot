@@ -606,8 +606,9 @@ REPORT_HTML_TEMPLATE = """
     <div class="collapsible-content">
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="heightRange" onchange="updateChart('height')">
-        <option value="auto" selected>默认（0-{{ chart_max_month }}月）</option>
-        <option value="0-12">0-12月</option>
+        <option value="full" selected>全览（0-{{ chart_max_month }}月）</option>
+        <option value="recent">近期（{{ recent_min_month }}-{{ recent_max_month }}月）</option>
+        <option value="0-12">1岁（0-12月）</option>
         <option value="12-24">12-24月</option>
         <option value="24-36">24-36月</option>
         <option value="36-48">36-48月</option>
@@ -626,8 +627,9 @@ REPORT_HTML_TEMPLATE = """
     <div class="collapsible-content">
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="weightRange" onchange="updateChart('weight')">
-        <option value="auto" selected>默认（0-{{ chart_max_month }}月）</option>
-        <option value="0-12">0-12月</option>
+        <option value="full" selected>全览（0-{{ chart_max_month }}月）</option>
+        <option value="recent">近期（{{ recent_min_month }}-{{ recent_max_month }}月）</option>
+        <option value="0-12">1岁（0-12月）</option>
         <option value="12-24">12-24月</option>
         <option value="24-36">24-36月</option>
         <option value="36-48">36-48月</option>
@@ -658,7 +660,7 @@ REPORT_HTML_TEMPLATE = """
       <span class="arrow">▼</span>
     </div>
     <div class="collapsible-content collapsed">
-      {% for m in medical_records %}
+      {% for m in medical_records[:5] %}
       <div class="med-item">
         <div class="med-main" onclick="toggleMed(this)">
           <div class="med-date">{{ m.date }}</div>
@@ -677,6 +679,32 @@ REPORT_HTML_TEMPLATE = """
         </div>
       </div>
       {% endfor %}
+      {% if medical_records|length > 5 %}
+      <div id="medMore" style="display:none;">
+        {% for m in medical_records[5:] %}
+        <div class="med-item">
+          <div class="med-main" onclick="toggleMed(this)">
+            <div class="med-date">{{ m.date }}</div>
+            <div class="med-hospital">{{ m.hospital }}</div>
+            <div class="med-doctor">{{ m.doctor }}</div>
+            <div class="med-dept">{{ m.department }}</div>
+            <span class="badge badge-{{ m.type }}">{{ m.type }}</span>
+            <span class="arrow">▶</span>
+          </div>
+          <div class="med-detail" style="display:none;">
+            <div class="med-detail-row"><span class="med-label">主要诉求</span><span>{{ m.chief_complaint }}</span></div>
+            {% if m.exam %}<div class="med-detail-row"><span class="med-label">检查内容</span><span>{{ m.exam }}</span></div>{% endif %}
+            {% if m.diagnosis %}<div class="med-detail-row"><span class="med-label">诊断</span><span>{{ m.diagnosis }}</span></div>{% endif %}
+            {% if m.advice %}<div class="med-detail-row"><span class="med-label">医生建议</span><span>{{ m.advice }}</span></div>{% endif %}
+            {% if m.medication %}<div class="med-detail-row"><span class="med-label">用药情况</span><span>{{ m.medication }}</span></div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="var e=document.getElementById('medMore');e.style.display='block';this.style.display='none';" style="border:none;background:#f0f0fa;color:#2B4A9A;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;">展开剩余 {{ medical_records|length - 5 }} 条记录 ▼</button>
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -688,10 +716,22 @@ REPORT_HTML_TEMPLATE = """
     </div>
     <div class="collapsible-content collapsed">
       <table><thead><tr><th>日期</th><th>疫苗名称</th><th>针剂</th><th>状态</th></tr></thead><tbody>
-      {% for v in vaccine_records %}
+      {% for v in vaccine_records[:5] %}
       <tr><td>{{ v.date }}</td><td>{{ v.vaccine }}</td><td>{{ v.dose }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
       {% endfor %}
       </tbody></table>
+      {% if vaccine_records|length > 5 %}
+      <div id="vacMore" style="display:none;">
+        <table><thead></thead><tbody>
+        {% for v in vaccine_records[5:] %}
+        <tr><td>{{ v.date }}</td><td>{{ v.vaccine }}</td><td>{{ v.dose }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
+        {% endfor %}
+        </tbody></table>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button onclick="var e=document.getElementById('vacMore');e.style.display='block';this.style.display='none';" style="border:none;background:#fef0ef;color:#F86C5B;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;">展开剩余 {{ vaccine_records|length - 5 }} 条记录 ▼</button>
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -703,6 +743,8 @@ const actualHeights={{ actual_heights|safe }};
 const actualWeights={{ actual_weights|safe }};
 const autoMin={{ chart_min_month }};
 const autoMax={{ chart_max_month }};
+const recentMin={{ recent_min_month }};
+const recentMax={{ recent_max_month }};
 let heightChart=null,weightChart=null;
 let tooltipTimer=null;
 
@@ -719,7 +761,8 @@ function toggleMed(main){
 
 function buildChart(ctxId,whoData,actual,range,yLabel){
   let minM,maxM;
-  if(range==='auto'){minM=autoMin;maxM=autoMax;}
+  if(range==='full'){minM=autoMin;maxM=autoMax;}
+  else if(range==='recent'){minM=recentMin;maxM=recentMax;}
   else{const parts=range.split('-');minM=Number(parts[0]);maxM=Number(parts[1]);}
   let months=whoData.map(d=>d[0]).filter(m=>m>=minM&&m<=maxM).sort((a,b)=>a-b);
   const datasets=[];
@@ -1027,9 +1070,13 @@ def report():
         height_growth_rate = 0
         weight_growth_rate = 0
 
-    # 图表默认区间：0月到当前月龄+3月（覆盖完整成长轨迹）
+    # 图表区间
+    # 全览：0月到当前月龄+3月
     chart_min_month = 0
     chart_max_month = int(latest_age_months + 3)
+    # 近期：往前12个月、往后2个月
+    recent_min_month = int(max(0, latest_age_months - 12))
+    recent_max_month = int(latest_age_months + 2)
 
     # 近期节点
     next_items = []
@@ -1098,6 +1145,8 @@ def report():
         advice_items=advice_items,
         chart_min_month=chart_min_month,
         chart_max_month=chart_max_month,
+        recent_min_month=recent_min_month,
+        recent_max_month=recent_max_month,
         who_height=json.dumps(who_height),
         who_weight=json.dumps(who_weight),
         actual_heights=json.dumps(actual_heights),
@@ -1128,12 +1177,14 @@ WEB_CHAT_HTML = """
   .header .title{font-size:16px;font-weight:600;}
   .header .subtitle{font-size:11px;opacity:.85;margin-top:2px;}
   .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px;}
-  .entry-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-  .entry-card{background:#fff;border-radius:16px;padding:20px 16px;text-align:center;cursor:pointer;text-decoration:none;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;align-items:center;gap:10px;}
-  .entry-card:active{transform:scale(.96);box-shadow:0 2px 12px rgba(102,126,234,.2);}
-  .entry-card .e-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+  .entry-grid{display:flex;flex-direction:column;gap:12px;}
+  .entry-card{background:#fff;border-radius:16px;padding:18px 16px;cursor:pointer;text-decoration:none;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:transform .15s,box-shadow .15s;display:flex;align-items:center;gap:14px;}
+  .entry-card:active{transform:scale(.98);box-shadow:0 2px 12px rgba(102,126,234,.2);}
+  .entry-card .e-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+  .entry-card .e-text{flex:1;min-width:0;}
   .entry-card .e-name{font-size:15px;font-weight:600;color:#333;}
-  .entry-card .e-desc{font-size:12px;color:#999;line-height:1.5;}
+  .entry-card .e-desc{font-size:12px;color:#999;line-height:1.5;margin-top:2px;}
+  .entry-card .e-arrow{font-size:18px;color:#ccc;flex-shrink:0;}
   .entry-card.c1 .e-icon{background:#E8F0FE;}
   .entry-card.c2 .e-icon{background:#E6F4EA;}
   .entry-card.c3 .e-icon{background:#FEF7E0;}
@@ -1152,23 +1203,23 @@ WEB_CHAT_HTML = """
   <div class="entry-grid">
     <a class="entry-card c1" href="/report" target="_blank">
       <div class="e-icon">📈</div>
-      <div class="e-name">成长趋势</div>
-      <div class="e-desc">身高体重曲线与百分位评估</div>
+      <div class="e-text"><div class="e-name">成长趋势</div><div class="e-desc">身高体重曲线与百分位评估</div></div>
+      <div class="e-arrow">›</div>
     </a>
     <a class="entry-card c2" href="/web/med" target="_blank">
       <div class="e-icon">🏥</div>
-      <div class="e-name">医疗情况</div>
-      <div class="e-desc">就医记录与疫苗记录</div>
+      <div class="e-text"><div class="e-name">医疗情况</div><div class="e-desc">就医记录与疫苗记录</div></div>
+      <div class="e-arrow">›</div>
     </a>
     <a class="entry-card c3" href="/web/add" target="_blank">
       <div class="e-icon">📝</div>
-      <div class="e-name">新增记录</div>
-      <div class="e-desc">记录成长 / 医疗 / 疫苗</div>
+      <div class="e-text"><div class="e-name">新增记录</div><div class="e-desc">记录成长 / 医疗 / 疫苗</div></div>
+      <div class="e-arrow">›</div>
     </a>
     <a class="entry-card c4" href="/web/chat" target="_blank">
       <div class="e-icon">💬</div>
-      <div class="e-name">养育咨询</div>
-      <div class="e-desc">随时咨询育儿问题</div>
+      <div class="e-text"><div class="e-name">养育咨询</div><div class="e-desc">随时咨询育儿问题</div></div>
+      <div class="e-arrow">›</div>
     </a>
   </div>
 </div>
@@ -1246,7 +1297,7 @@ MED_PAGE_HTML = """
   <div class="card">
     <h2>🏥 就医记录（{{ medical_count }}）</h2>
     {% if medical_records %}
-    {% for m in medical_records %}
+    {% for m in medical_records[:5] %}
     <div class="med-item">
       <div class="med-main" onclick="toggleMed(this)">
         <div class="med-date">{{ m.date }}</div>
@@ -1265,6 +1316,32 @@ MED_PAGE_HTML = """
       </div>
     </div>
     {% endfor %}
+    {% if medical_count > 5 %}
+    <div id="medMore" style="display:none;">
+    {% for m in medical_records[5:] %}
+    <div class="med-item">
+      <div class="med-main" onclick="toggleMed(this)">
+        <div class="med-date">{{ m.date }}</div>
+        <div class="med-hospital">{{ m.hospital }}</div>
+        <div class="med-doctor">{{ m.doctor }}</div>
+        <div class="med-dept">{{ m.department }}</div>
+        <span class="badge badge-{{ m.type }}">{{ m.type_label }}</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="med-detail">
+        <div class="med-detail-row"><span class="med-label">主要诉求</span><span>{{ m.chief_complaint }}</span></div>
+        {% if m.exam %}<div class="med-detail-row"><span class="med-label">检查内容</span><span>{{ m.exam }}</span></div>{% endif %}
+        {% if m.diagnosis %}<div class="med-detail-row"><span class="med-label">诊断</span><span>{{ m.diagnosis }}</span></div>{% endif %}
+        {% if m.advice %}<div class="med-detail-row"><span class="med-label">医生建议</span><span>{{ m.advice }}</span></div>{% endif %}
+        {% if m.medication %}<div class="med-detail-row"><span class="med-label">用药情况</span><span>{{ m.medication }}</span></div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="var e=document.getElementById('medMore');e.style.display='block';this.style.display='none';" style="border:none;background:#f0f0fa;color:#2B4A9A;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;">展开剩余 {{ medical_count - 5 }} 条记录 ▼</button>
+    </div>
+    {% endif %}
     {% else %}
     <div class="section-empty">暂无就医记录</div>
     {% endif %}
@@ -1276,11 +1353,25 @@ MED_PAGE_HTML = """
     <table>
       <thead><tr><th>日期</th><th>疫苗名称</th><th>针剂</th><th>状态</th></tr></thead>
       <tbody>
-      {% for v in vaccine_records %}
+      {% for v in vaccine_records[:5] %}
       <tr><td>{{ v.date }}</td><td>{{ v.vaccine }}</td><td>{{ v.dose }}</td><td><span class="vac-done">已接种</span></td></tr>
       {% endfor %}
       </tbody>
     </table>
+    {% if vaccine_count > 5 %}
+    <div id="vacMore" style="display:none;">
+    <table>
+      <tbody>
+      {% for v in vaccine_records[5:] %}
+      <tr><td>{{ v.date }}</td><td>{{ v.vaccine }}</td><td>{{ v.dose }}</td><td><span class="vac-done">已接种</span></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="var e=document.getElementById('vacMore');e.style.display='block';this.style.display='none';" style="border:none;background:#fef0ef;color:#F86C5B;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;">展开剩余 {{ vaccine_count - 5 }} 条记录 ▼</button>
+    </div>
+    {% endif %}
     {% else %}
     <div class="section-empty">暂无疫苗记录</div>
     {% endif %}
