@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 阿鲤成长记录 - 微信公众号后端服务
 部署在 Render.com 上的 Flask 应用，处理微信消息、调用智谱AI生成回复。
@@ -68,20 +68,56 @@ def load_data():
             "birth_height_cm": 47, "birth_weight_g": 1650
         },
         "growth_records": [
+            {"date": "2024-03-13", "height_cm": 47, "weight_kg": 2.65},
+            {"date": "2024-04-16", "height_cm": 52, "weight_kg": 4.0},
+            {"date": "2024-06-21", "height_cm": 58, "weight_kg": 6.35},
+            {"date": "2024-11-13", "height_cm": 66, "weight_kg": 8.95},
             {"date": "2025-06-11", "height_cm": 74, "weight_kg": 10.7},
             {"date": "2025-10-18", "height_cm": 79, "weight_kg": 11.0},
             {"date": "2025-12-14", "height_cm": 80, "weight_kg": 11.7},
             {"date": "2026-01-12", "height_cm": 80, "weight_kg": 11.5},
             {"date": "2026-03-01", "height_cm": 82, "weight_kg": 12.3},
+            {"date": "2026-03-24", "height_cm": 83.5, "weight_kg": 11.5},
             {"date": "2026-04-28", "height_cm": 84, "weight_kg": 12.0},
             {"date": "2026-05-08", "height_cm": 85, "weight_kg": 12.0},
             {"date": "2026-06-04", "height_cm": 85, "weight_kg": 11.7},
             {"date": "2026-07-05", "height_cm": 86.5, "weight_kg": 12.4}
         ],
         "medical_records": [
-            {"date": "2024-03-13", "description": "出生，早产低体重儿", "type": "birth"}
+            {"date": "2024-03-13", "type": "birth", "hospital": "福建医科大学附属第一医院", "department": "产科", "doctor": "", "chief_complaint": "出生，早产低体重儿（胎膜早破，剖宫产，Apgar 10-10-10）", "exam": "出生体重2650g(P10-25)、身长47cm", "diagnosis": "早产低体重儿", "advice": "", "medication": ""},
+            {"date": "2024-04-24", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "李权济", "chief_complaint": "42天儿保体检", "exam": "AABR双耳通过；NBNA评分38分；体重4.5kg(P25)、身长54cm(P10-25)、头围36cm(P5-10)", "diagnosis": "婴儿痤疮；婴儿脂溢性皮炎；鞘膜积液（可能）", "advice": "每日补充维生素AD至18岁；加强户外活动1-2小时/日；注意皮肤护理（水温35-37℃、时长不超5分钟）；3月龄复诊", "medication": "日常：AD、D3交替补充；信谊益生菌"},
+            {"date": "2024-06-24", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "奥体儿科门诊", "doctor": "李绥沂", "chief_complaint": "3月龄儿保体检", "exam": "AABR双耳通过；NBNA评分38分；6-21社区体检：体重6.5kg(P50-75)、身长58cm(P5)、头围36cm(P10)", "diagnosis": "鞘膜积液", "advice": "加强家庭训练；每日补充维生素D至18岁；皮肤护理（水温35-37℃、时长不超5分钟）；4月龄复诊；辅食建议：从含铁米糊、蛋黄、肉泥、肝泥开始", "medication": ""},
+            {"date": "2024-07-31", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "李绥沂", "chief_complaint": "4月龄儿保体检", "exam": "AMIS17分(10th)；IFANIB78分；体重7.1kg(P25-50)、身长62cm(P5-10)、头围40cm(P5)；面部有湿疹", "diagnosis": "婴儿湿疹", "advice": "加强户外活动2小时/日；补充LGG、DHA；皮肤护理（水温30-35℃、时长不超5分钟、保湿）；依次添加鸡蛋白及花生等辅食；1个月后复诊", "medication": "无新开药品"},
+            {"date": "2024-09-11", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "李绥沂", "chief_complaint": "6月龄儿保体检", "exam": "AMIS28分；IFANIB76分；体重7.72kg(P25-50)、身高65cm(P10-25)、头围42cm(P10-25)", "diagnosis": "婴儿湿疹", "advice": "加强户外活动2小时/日；补充LGG、DHA；皮肤护理；辅食加小麦；1个月后复诊；满6月龄接种流感疫苗", "medication": ""},
+            {"date": "2024-10-16", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "李绥沂", "chief_complaint": "7月龄儿保体检", "exam": "AMIS29分(IFANIB84分)；体重8.2kg(P50-75)、身高67.5cm(P25-50)、头围43cm(P10-25)", "diagnosis": "婴儿湿疹", "advice": "", "medication": ""},
+            {"date": "2025-03-19", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "李绥沂", "chief_complaint": "12月龄儿保体检", "exam": "AMIS48分(IFANIB96分)；体重10kg(P50-75)、身高71.5cm(P2-5)、头围43cm(<P2)；微量血常规", "diagnosis": "婴儿湿疹", "advice": "一日三餐规律，每日奶量500-600ml；增加豆制品、虾等蛋白质摄入；前往林碧云医生处完成DDST测试；3个月后复诊", "medication": ""},
+            {"date": "2025-03-24", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "林碧云", "chief_complaint": "1岁儿保复诊", "exam": "DDST：大运动落后，余运动能区正常；扶站扶走、可发babamama、单词、牙6颗", "diagnosis": "儿童常规健康检查", "advice": "", "medication": ""},
+            {"date": "2026-03-24", "type": "checkup", "hospital": "福建医科大学附属第一医院", "department": "儿科门诊", "doctor": "刘健", "chief_complaint": "2岁复查", "exam": "体重11.5kg(P10-25)、身高83.5cm(P3-10)、头围46cm(P3)；心脏可闻及皿/6级SM期杂音；心脏彩超待查", "diagnosis": "心脏杂音（待查）", "advice": "一日三餐规律、食物多样化；每日饮奶350-500ml；注意安全；服用维生素AD、钙剂（钙500-600mg/日）；建议行心脏彩超；2岁6个月复诊", "medication": "自备维生素AD、钙剂（钙元素500-600mg/日）"},
+            {"date": "2026-06-07", "type": "consult", "hospital": "复旦大学附属华山医院福建医院", "department": "儿科门诊", "doctor": "线上问诊", "chief_complaint": "身高体重落后且停滞较久；咨询睡前奶、是否换奶粉、排查过敏、喂养建议", "exam": "线上问诊", "diagnosis": "喂养困难", "advice": "", "medication": ""},
+            {"date": "2026-07-23", "type": "illness", "hospital": "福建省儿童医院", "department": "耳鼻喉科门诊", "doctor": "", "chief_complaint": "声嘶", "exam": "", "diagnosis": "声嘶", "advice": "", "medication": ""},
+            {"date": "2026-08-28", "type": "illness", "hospital": "福建省儿童医院", "department": "中医科门诊", "doctor": "", "chief_complaint": "儿童型生长不足", "exam": "", "diagnosis": "儿童型生长不足", "advice": "", "medication": "中药处方：鸡内金、麦芽、稻芽、山药、薏苡仁、白扁豆、神曲、姜半夏、陈皮、茯苓、连翘、太子参、蜻蜓菊、首乌藤（7剂）"}
         ],
-        "vaccine_records": [],
+        "vaccine_records": [
+            {"date": "2024-03-13", "vaccine": "乙肝疫苗", "dose": "1/3", "status": "completed"},
+            {"date": "2024-04-16", "vaccine": "乙肝疫苗", "dose": "2/3", "status": "completed"},
+            {"date": "2024-05-07", "vaccine": "13价肺炎疫苗", "dose": "1/4", "status": "completed"},
+            {"date": "2024-05-21", "vaccine": "百白破IPV和Hib五联疫苗", "dose": "1/4", "status": "completed"},
+            {"date": "2024-06-21", "vaccine": "百白破IPV和Hib五联疫苗", "dose": "2/4", "status": "completed"},
+            {"date": "2024-07-18", "vaccine": "13价肺炎疫苗", "dose": "2/4", "status": "completed"},
+            {"date": "2024-08-09", "vaccine": "百白破IPV和Hib五联疫苗", "dose": "3/4", "status": "completed"},
+            {"date": "2024-09-27", "vaccine": "A群流脑疫苗", "dose": "1/2", "status": "completed"},
+            {"date": "2024-10-09", "vaccine": "乙肝疫苗", "dose": "3/3", "status": "completed"},
+            {"date": "2024-10-29", "vaccine": "13价肺炎疫苗", "dose": "3/4", "status": "completed"},
+            {"date": "2024-11-13", "vaccine": "麻风腮疫苗(MMR)", "dose": "1/2", "status": "completed"},
+            {"date": "2024-12-17", "vaccine": "乙脑减毒活疫苗", "dose": "1/2", "status": "completed"},
+            {"date": "2025-01-24", "vaccine": "A群流脑疫苗", "dose": "2/2", "status": "completed"},
+            {"date": "2025-04-16", "vaccine": "13价肺炎疫苗", "dose": "4/4", "status": "completed"},
+            {"date": "2025-05-15", "vaccine": "水痘疫苗", "dose": "1/1", "status": "completed"},
+            {"date": "2025-10-18", "vaccine": "麻风腮疫苗(MMR)", "dose": "2/2", "status": "completed"},
+            {"date": "2025-11-19", "vaccine": "甲肝减毒活疫苗", "dose": "1/1", "status": "completed"},
+            {"date": "2025-11-26", "vaccine": "百白破IPV和Hib五联疫苗", "dose": "4/4", "status": "completed"},
+            {"date": "2026-04-29", "vaccine": "乙脑减毒活疫苗", "dose": "2/2", "status": "completed"}
+        ],
         "chat_history": []
     }
 
@@ -93,7 +129,7 @@ def save_data(data):
 
 # ============ 消息解析 ============
 def parse_growth_message(text):
-    """从消息文本中提取身高体重数据"""
+    """从消息文本中提取身高体重数据，支持带日期格式"""
     # 匹配多种格式
     patterns = [
         r'(\d+(?:\.\d+)?)\s*cm\s*,?\s*(\d+(?:\.\d+)?)\s*kg',
@@ -101,6 +137,22 @@ def parse_growth_message(text):
         r'身高\s*(\d+(?:\.\d+)?)\s*.*?体重\s*(\d+(?:\.\d+)?)',
         r'(\d{2,3}(?:\.\d+)?)\s+(\d{1,2}(?:\.\d+)?)\s*(?:kg|公斤|斤)?',
     ]
+    # 先尝试带日期格式：如 "2024.3.13 47 2.65" / "2024-03-13 47 2.65" / "3月13日 47 2.65"
+    date_patterns = [
+        r'(\d{4})[.\-/年](\d{1,2})[.\-/月](\d{1,2})日?\s*(\d{2,3}(?:\.\d+)?)\s+(\d{1,2}(?:\.\d+)?)',
+        r'(\d{1,2})月(\d{1,2})日\s*(\d{2,3}(?:\.\d+)?)\s+(\d{1,2}(?:\.\d+)?)',
+    ]
+    for dp in date_patterns:
+        m = re.search(dp, text)
+        if m:
+            height = float(m.group(-2))
+            weight = float(m.group(-1))
+            if 40 < height < 120 and 3 < weight < 30:
+                year = int(m.group(1))
+                month = int(m.group(2))
+                day = int(m.group(3))
+                date_str = "%04d-%02d-%02d" % (year, month, day)
+                return {"height_cm": height, "weight_kg": weight, "date": date_str}
     for pattern in patterns:
         m = re.search(pattern, text, re.IGNORECASE)
         if m:
@@ -140,10 +192,13 @@ def detect_message_type(text):
     return "chat"  # 默认：通用对话
 
 
-def record_growth(height, weight):
-    """记录身高体重"""
+def record_growth(height, weight, record_date=None):
+    """记录身高体重，record_date 可选（默认当天）"""
     data = load_data()
-    today = time.strftime("%Y-%m-%d")
+    if record_date:
+        today = record_date
+    else:
+        today = time.strftime("%Y-%m-%d")
     record = {"date": today, "height_cm": height, "weight_kg": weight, "source": "wechat"}
     data["growth_records"].append(record)
     data["growth_records"].sort(key=lambda x: x["date"])
@@ -160,7 +215,8 @@ def record_medical(description):
         mtype = "checkup"
     elif "发烧" in description or "就诊" in description or "看病" in description:
         mtype = "illness"
-    record = {"date": today, "description": description, "type": mtype}
+    record = {"date": today, "type": mtype, "hospital": "", "department": "", "doctor": "",
+              "chief_complaint": description, "exam": "", "diagnosis": "", "advice": "", "medication": ""}
     data["medical_records"].append(record)
     save_data(data)
     return record
@@ -170,7 +226,7 @@ def record_vaccine(description):
     """记录疫苗"""
     data = load_data()
     today = time.strftime("%Y-%m-%d")
-    record = {"date": today, "vaccine_name": description, "dose": "", "status": "completed"}
+    record = {"date": today, "vaccine": description, "dose": "", "status": "completed"}
     data["vaccine_records"].append(record)
     save_data(data)
     return record
@@ -250,10 +306,12 @@ def handle_text_message(content, from_user):
     if msg_type == "growth":
         parsed = parse_growth_message(content)
         if parsed:
-            record_growth(parsed["height_cm"], parsed["weight_kg"])
+            rec_date = parsed.get("date")
+            record_growth(parsed["height_cm"], parsed["weight_kg"], rec_date)
             # 让AI评估并生成回复
+            date_txt = f"日期{rec_date}，" if rec_date else "今天"
             reply = chat_with_ai(
-                f"家长记录了阿鲤今天的身高{parsed['height_cm']}cm，体重{parsed['weight_kg']}kg。请确认记录并简要评估。",
+                f"家长记录了阿鲤{date_txt}身高{parsed['height_cm']}cm，体重{parsed['weight_kg']}kg。请确认记录并简要评估。",
                 "growth"
             )
             return reply
@@ -440,6 +498,17 @@ REPORT_HTML_TEMPLATE = """
   .badge-birth{background:#FFF8E1;color:#F57F17;}
   .badge-checkup{background:#EDE7F6;color:#4527A0;}
   .section-empty{text-align:center;color:#999;padding:20px;}
+  .med-item{background:#fff;border-radius:10px;margin-top:8px;overflow:hidden;}
+  .med-main{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F9F9FF;cursor:pointer;flex-wrap:wrap;border:1px solid #f0f0fa;border-radius:10px;}
+  .med-main .med-date{font-weight:600;color:#2B4A9A;white-space:nowrap;font-size:13px;}
+  .med-main .med-hospital{font-size:13px;color:#333;flex:1;min-width:120px;}
+  .med-main .med-doctor{font-size:12px;color:#666;background:#eef1fb;border-radius:6px;padding:2px 8px;white-space:nowrap;}
+  .med-main .med-dept{font-size:12px;color:#888;white-space:nowrap;}
+  .med-main .arrow{font-size:12px;color:#9990ED;transition:transform .2s;}
+  .med-detail{padding:12px 16px;background:#fff;border:1px solid #f0f0fa;border-radius:0 0 10px 10px;}
+  .med-detail-row{display:flex;gap:8px;margin-top:6px;font-size:13px;line-height:1.6;}
+  .med-detail-row .med-label{flex-shrink:0;color:#9990ED;font-weight:600;width:70px;}
+  .med-detail-row span:last-child{color:#555;}
   @media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}.stat-box.full-width{grid-column:1/-1;}.card{padding:16px;}.chart-container{height:300px;}}
 </style>
 </head>
@@ -490,7 +559,11 @@ REPORT_HTML_TEMPLATE = """
     </div>
     {% if next_items %}
     <div style="margin-top:16px;">
-      <div style="font-size:14px;color:#666;margin-bottom:4px;">近期节点</div>
+      <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+        <div style="font-size:14px;color:#666;">近期节点（1个月内）</div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="collapsible-content collapsed">
       {% for item in next_items %}
       <div class="next-item">
         <div class="icon">{{ item.icon }}</div>
@@ -501,6 +574,7 @@ REPORT_HTML_TEMPLATE = """
         <div class="countdown">{{ item.countdown }}</div>
       </div>
       {% endfor %}
+      </div>
     </div>
     {% endif %}
     <div class="advice-section" style="margin-top:16px;">
@@ -567,28 +641,42 @@ REPORT_HTML_TEMPLATE = """
   {% if medical_records %}
   <div class="card">
     <div class="collapsible-header collapsed" onclick="toggleSection(this)">
-      <h2 style="border-left:4px solid #9990ED;padding-left:12px;">就医记录</h2>
+      <h2 style="border-left:4px solid #9990ED;padding-left:12px;">就医记录（{{ medical_records|length }}）</h2>
       <span class="arrow">▼</span>
     </div>
     <div class="collapsible-content collapsed">
-      <table><thead><tr><th>日期</th><th>类型</th><th>描述</th></tr></thead><tbody>
       {% for m in medical_records %}
-      <tr><td>{{ m.date }}</td><td><span class="badge badge-{{ m.type }}">{{ m.type }}</span></td><td>{{ m.description }}</td></tr>
+      <div class="med-item">
+        <div class="med-main" onclick="toggleMed(this)">
+          <div class="med-date">{{ m.date }}</div>
+          <div class="med-hospital">{{ m.hospital }}</div>
+          <div class="med-doctor">{{ m.doctor }}</div>
+          <div class="med-dept">{{ m.department }}</div>
+          <span class="badge badge-{{ m.type }}">{{ m.type }}</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="med-detail" style="display:none;">
+          <div class="med-detail-row"><span class="med-label">主要诉求</span><span>{{ m.chief_complaint }}</span></div>
+          {% if m.exam %}<div class="med-detail-row"><span class="med-label">检查内容</span><span>{{ m.exam }}</span></div>{% endif %}
+          {% if m.diagnosis %}<div class="med-detail-row"><span class="med-label">诊断</span><span>{{ m.diagnosis }}</span></div>{% endif %}
+          {% if m.advice %}<div class="med-detail-row"><span class="med-label">医生建议</span><span>{{ m.advice }}</span></div>{% endif %}
+          {% if m.medication %}<div class="med-detail-row"><span class="med-label">用药情况</span><span>{{ m.medication }}</span></div>{% endif %}
+        </div>
+      </div>
       {% endfor %}
-      </tbody></table>
     </div>
   </div>
   {% endif %}
   {% if vaccine_records %}
   <div class="card">
     <div class="collapsible-header collapsed" onclick="toggleSection(this)">
-      <h2 style="border-left:4px solid #F86C5B;padding-left:12px;">疫苗记录</h2>
+      <h2 style="border-left:4px solid #F86C5B;padding-left:12px;">疫苗记录（{{ vaccine_records|length }}）</h2>
       <span class="arrow">▼</span>
     </div>
     <div class="collapsible-content collapsed">
-      <table><thead><tr><th>日期</th><th>疫苗名称</th><th>状态</th></tr></thead><tbody>
+      <table><thead><tr><th>日期</th><th>疫苗名称</th><th>针剂</th><th>状态</th></tr></thead><tbody>
       {% for v in vaccine_records %}
-      <tr><td>{{ v.date }}</td><td>{{ v.vaccine_name }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
+      <tr><td>{{ v.date }}</td><td>{{ v.vaccine }}</td><td>{{ v.dose }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
       {% endfor %}
       </tbody></table>
     </div>
@@ -608,6 +696,12 @@ let tooltipTimer=null;
 function toggleSection(header){
   header.classList.toggle('collapsed');
   header.nextElementSibling.classList.toggle('collapsed');
+}
+function toggleMed(main){
+  const detail=main.nextElementSibling;
+  const arrow=main.querySelector('.arrow');
+  if(detail.style.display==='none'){detail.style.display='block';arrow.textContent='▼';}
+  else{detail.style.display='none';arrow.textContent='▶';}
 }
 
 function buildChart(ctxId,whoData,actual,range,yLabel){
@@ -659,9 +753,9 @@ function buildChart(ctxId,whoData,actual,range,yLabel){
     borderColor:'#2B4A9A',
     backgroundColor:'#2B4A9A',
     borderWidth:3,fill:false,
-    pointRadius:7,pointHoverRadius:10,
+    pointRadius:4,pointHoverRadius:7,
     pointBackgroundColor:'#2B4A9A',
-    pointBorderColor:'#fff',pointBorderWidth:2,
+    pointBorderColor:'#fff',pointBorderWidth:1.5,
     tension:0.3,
     order:1,
     parsing:{xAxisKey:'x',yAxisKey:'y'}
@@ -796,8 +890,26 @@ def report():
     # 生长记录逆序
     growth_display = sorted(growth, key=lambda x: x["date"], reverse=True)
 
-    # 就医记录逆序
-    medical_display = sorted(data.get("medical_records", []), key=lambda x: x["date"], reverse=True)
+    # 就医记录逆序（归一化字段，兼容旧格式）
+    raw_medical = data.get("medical_records", [])
+    for m in raw_medical:
+        m.setdefault("hospital", "")
+        m.setdefault("department", "")
+        m.setdefault("doctor", "")
+        m.setdefault("chief_complaint", m.get("description", ""))
+        m.setdefault("exam", "")
+        m.setdefault("diagnosis", "")
+        m.setdefault("advice", "")
+        m.setdefault("medication", "")
+    medical_display = sorted(raw_medical, key=lambda x: x["date"], reverse=True)
+
+    # 疫苗记录归一化字段（兼容旧格式）
+    raw_vaccine = data.get("vaccine_records", [])
+    for v in raw_vaccine:
+        v.setdefault("vaccine", v.get("vaccine_name", ""))
+        v.setdefault("dose", "")
+        v.setdefault("status", "completed")
+    vaccine_display = sorted(raw_vaccine, key=lambda x: x["date"], reverse=True)
 
     # WHO完整数据（0-60月，5个百分位列）
     who_height = [
@@ -867,13 +979,8 @@ def report():
         try:
             d = dt_date.fromisoformat(dstr)
             days_left = (d - today).days
-            if days_left > 0:
-                if days_left <= 30:
-                    countdown = f"{days_left}天后"
-                elif days_left <= 90:
-                    countdown = f"约{days_left//7}周后"
-                else:
-                    countdown = f"约{round(days_left/30)}个月后"
+            if 0 < days_left <= 30:
+                countdown = f"{days_left}天后"
                 next_items.append({"name": name, "date": dstr, "icon": icon, "countdown": countdown})
         except:
             pass
@@ -913,7 +1020,7 @@ def report():
         latest_record_date=latest_record_date,
         growth_records=growth_display,
         medical_records=medical_display,
-        vaccine_records=data.get("vaccine_records", []),
+        vaccine_records=vaccine_display,
         height_percentile_desc=h_pct_desc,
         height_percentile_pos=round(h_pct_pos),
         weight_percentile_desc=w_pct_desc,
@@ -949,12 +1056,11 @@ WEB_CHAT_HTML = """
   html,body{height:100%;overflow:hidden;}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;display:flex;flex-direction:column;height:100vh;}
   .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15);}
-  .header .avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .header .avatar{width:42px;height:42px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.15);overflow:hidden;}
+  .header .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
   .header .title-wrap{flex:1;min-width:0;}
   .header .title{font-size:16px;font-weight:600;}
   .header .subtitle{font-size:11px;opacity:.85;margin-top:2px;}
-  .header .report-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-  .header .report-btn:active{background:rgba(255,255,255,.35);}
   .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 12px;display:flex;flex-direction:column;gap:12px;}
   .msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.6;word-break:break-word;white-space:pre-wrap;animation:fadeIn .3s ease;}
   .msg.user{align-self:flex-end;background:#667eea;color:#fff;border-bottom-right-radius:4px;}
@@ -964,9 +1070,12 @@ WEB_CHAT_HTML = """
   .typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#aaa;margin:0 1px;animation:blink 1.4s infinite both;}
   .typing span:nth-child(2){animation-delay:.2s;}
   .typing span:nth-child(3){animation-delay:.4s;}
-  .quick-tags{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;flex-shrink:0;background:#f0f0f0;}
-  .quick-tags .tag{background:#fff;border:1px solid #ddd;border-radius:18px;padding:6px 14px;font-size:13px;color:#555;cursor:pointer;white-space:nowrap;}
-  .quick-tags .tag:active{background:#667eea;color:#fff;border-color:#667eea;}
+  .guide-bar{flex-shrink:0;padding:10px 12px;background:#fff;border-top:1px solid #e8e8e8;}
+  .guide-bar .guide-title{font-size:12px;color:#999;margin-bottom:8px;text-align:center;}
+  .guide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .guide-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:12px;background:#f8f8fc;cursor:pointer;border:none;font-size:12px;color:#555;text-decoration:none;}
+  .guide-item:active{background:#667eea;color:#fff;}
+  .guide-item .g-icon{font-size:22px;}
   .input-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #e0e0e0;flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
   .input-bar input{flex:1;border:1px solid #e0e0e0;border-radius:22px;padding:10px 16px;font-size:16px;outline:none;background:#f8f8f8;}
   .input-bar input:focus{border-color:#667eea;background:#fff;}
@@ -979,26 +1088,37 @@ WEB_CHAT_HTML = """
 </head>
 <body>
 <div class="header">
-  <div class="avatar">🐟</div>
+  <div class="avatar"><img src="data:image/png;base64,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" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
   <div class="title-wrap">
     <div class="title">阿鲤成长助手</div>
     <div class="subtitle">记录成长 · 科学育儿</div>
   </div>
-  <button class="report-btn" onclick="window.open('/report','_blank')">📊 报告</button>
 </div>
 <div class="messages" id="messages">
   <div class="msg bot">👋 你好！我是阿鲤的成长助手，可以帮你：
-    \n1. 记录身高体重，如发"87cm 12.5kg"
-    \n2. 记录就医/疫苗信息
-    \n3. 在线咨询育儿问题
-    \n4. 点击右上角"报告"查看成长曲线
-    \n\n有什么我可以帮你的？</div>
+\n1. 查看阿鲤成长记录（点击下方入口）
+\n2. 记录身高体重，如发"87cm 12.5kg"
+\n3. 添加医疗、疫苗信息
+\n4. 咨询阿鲤成长中的养育问题，直接提问即可
+\n\n有什么我可以帮你的？</div>
 </div>
-<div class="quick-tags" id="quickTags">
-  <span class="tag" onclick="sendQuick('帮助')">帮助</span>
-  <span class="tag" onclick="sendQuick('体检')">下次体检</span>
-  <span class="tag" onclick="sendQuick('疫苗')">疫苗</span>
-  <span class="tag" onclick="sendQuick('数据')">数据</span>
+<div class="intro-bar" id="introBar" style="display:none;"></div>
+<div class="guide-bar">
+  <div class="guide-title">常用功能</div>
+  <div class="guide-grid">
+    <a class="guide-item" href="/report" target="_blank">
+      <span class="g-icon">📈</span><span>成长记录</span>
+    </a>
+    <a class="guide-item" href="javascript:void(0)" onclick="document.getElementById('input').value='87cm 12.5kg';document.getElementById('input').focus();">
+      <span class="g-icon">📏</span><span>身高体重</span>
+    </a>
+    <a class="guide-item" href="/web/med" target="_blank">
+      <span class="g-icon">💊</span><span>医疗疫苗</span>
+    </a>
+    <a class="guide-item" href="javascript:void(0)" onclick="document.getElementById('input').focus();">
+      <span class="g-icon">💬</span><span>养育咨询</span>
+    </a>
+  </div>
 </div>
 <div class="input-bar">
   <input type="text" id="input" placeholder="输入消息..." onkeydown="if(event.key==='Enter')sendMsg()" maxlength="500">
@@ -1057,6 +1177,240 @@ def web_api():
     message = data["message"]
     reply = handle_text_message(message, "web_user")
     return jsonify({"reply": reply})
+
+# ============ 医疗疫苗添加页面 ============
+MED_PAGE_HTML = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#667eea">
+<title>添加医疗/疫苗记录</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:40px;}
+  .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  .header .back{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
+  .header .title{font-size:16px;font-weight:600;}
+  .container{padding:16px;max-width:600px;margin:0 auto;}
+  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .card h3{font-size:15px;color:#333;margin-bottom:14px;}
+  .type-tabs{display:flex;gap:10px;margin-bottom:16px;}
+  .type-tab{flex:1;padding:12px;border-radius:12px;border:2px solid #e0e0e0;background:#fff;text-align:center;font-size:14px;color:#666;cursor:pointer;}
+  .type-tab.active{border-color:#667eea;color:#667eea;background:#f5f6ff;font-weight:600;}
+  .form-group{margin-bottom:14px;}
+  .form-group label{display:block;font-size:13px;color:#666;margin-bottom:6px;}
+  .form-group input,.form-group textarea{width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:15px;outline:none;background:#fafafa;font-family:inherit;}
+  .form-group input:focus,.form-group textarea:focus{border-color:#667eea;background:#fff;}
+  .form-group textarea{min-height:80px;resize:vertical;}
+  .upload-box{border:2px dashed #ccc;border-radius:12px;padding:24px;text-align:center;color:#999;font-size:13px;cursor:pointer;background:#fafafa;margin-bottom:10px;}
+  .upload-box:active{background:#f0f2ff;border-color:#667eea;}
+  .submit-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
+  .submit-btn:active{transform:scale(.98);}
+  .submit-btn:disabled{background:#ccc;}
+  .tip{font-size:12px;color:#999;margin-top:10px;line-height:1.6;}
+  #preview{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  #preview img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #eee;}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="/web">←</a>
+  <div class="title">添加医疗/疫苗记录</div>
+</div>
+<div class="container">
+  <div class="type-tabs">
+    <div class="type-tab active" onclick="switchType('medical')" id="tab-medical">🏥 就医记录</div>
+    <div class="type-tab" onclick="switchType('vaccine')" id="tab-vaccine">💉 疫苗记录</div>
+  </div>
+  <div class="card" id="medical-form">
+    <h3>就医记录</h3>
+    <div class="form-group">
+      <label>就诊日期</label>
+      <input type="date" id="med-date">
+    </div>
+    <div class="form-group">
+      <label>医院名称</label>
+      <input type="text" id="med-hospital" placeholder="如：福建省儿童医院">
+    </div>
+    <div class="form-group">
+      <label>科室</label>
+      <input type="text" id="med-dept" placeholder="如：儿科门诊">
+    </div>
+    <div class="form-group">
+      <label>医生</label>
+      <input type="text" id="med-doctor" placeholder="如：张医生">
+    </div>
+    <div class="form-group">
+      <label>主要诉求</label>
+      <textarea id="med-complaint" placeholder="简要描述就诊原因（50字以内）"></textarea>
+    </div>
+    <div class="form-group">
+      <label>检查内容（可选）</label>
+      <textarea id="med-exam" placeholder="如：血常规、B超等"></textarea>
+    </div>
+    <div class="form-group">
+      <label>医生建议（可选）</label>
+      <textarea id="med-advice" placeholder="医生的建议或注意事项"></textarea>
+    </div>
+    <div class="form-group">
+      <label>用药情况（可选）</label>
+      <textarea id="med-medication" placeholder="如：头孢克洛 3天"></textarea>
+    </div>
+    <div class="form-group">
+      <label>病历照片（可选）</label>
+      <div class="upload-btn" onclick="document.getElementById('med-photos').click()">点击上传病历/处方照片</div>
+      <input type="file" id="med-photos" accept="image/*" multiple style="display:none" onchange="previewPhotos(this)">
+      <div id="preview"></div>
+    </div>
+    <button class="submit-btn" onclick="submitMed()">保存就医记录</button>
+  </div>
+  <div class="card" id="vaccine-form" style="display:none;">
+    <h3>疫苗记录</h3>
+    <div class="form-group">
+      <label>接种日期</label>
+      <input type="date" id="vac-date">
+    </div>
+    <div class="form-group">
+      <label>疫苗名称</label>
+      <input type="text" id="vac-name" placeholder="如：流感疫苗">
+    </div>
+    <div class="form-group">
+      <label>针剂数</label>
+      <input type="text" id="vac-dose" placeholder="如：1/2、2/2">
+    </div>
+    <button class="submit-btn" onclick="submitVac()">保存疫苗记录</button>
+  </div>
+  <p class="tip">记录中的身高体重数据将自动忽略，不会写入成长记录。保存后可随时在成长报告中查看。</p>
+</div>
+<script>
+let selectedPhotos=[];
+function switchType(t){
+  if(t==='medical'){
+    document.getElementById('tab-medical').classList.add('active');
+    document.getElementById('tab-vaccine').classList.remove('active');
+    document.getElementById('medical-form').style.display='block';
+    document.getElementById('vaccine-form').style.display='none';
+  }else{
+    document.getElementById('tab-vaccine').classList.add('active');
+    document.getElementById('tab-medical').classList.remove('active');
+    document.getElementById('vaccine-form').style.display='block';
+    document.getElementById('medical-form').style.display='none';
+  }
+}
+function previewPhotos(input){
+  selectedPhotos=[];
+  const files=input.files;
+  const pv=document.getElementById('preview');
+  pv.innerHTML='';
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    selectedPhotos.push(f);
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
+    pv.appendChild(img);
+  }
+}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+document.getElementById('med-date').value=today();
+document.getElementById('vac-date').value=today();
+async function submitMed(){
+  const payload={
+    type:'medical',
+    date:document.getElementById('med-date').value,
+    hospital:document.getElementById('med-hospital').value,
+    department:document.getElementById('med-dept').value,
+    doctor:document.getElementById('med-doctor').value,
+    chief_complaint:document.getElementById('med-complaint').value,
+    exam:document.getElementById('med-exam').value,
+    advice:document.getElementById('med-advice').value,
+    medication:document.getElementById('med-medication').value,
+    photos:[]
+  };
+  for(const f of selectedPhotos){
+    const b64=await fileToBase64(f);
+    payload.photos.push(b64);
+  }
+  const r=await fetch('/web/api/med',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const data=await r.json();
+  if(data.ok){alert('已保存就医记录！');window.location.href='/web';}
+  else{alert('保存失败：'+data.error);}
+}
+async function submitVac(){
+  const payload={
+    type:'vaccine',
+    date:document.getElementById('vac-date').value,
+    vaccine:document.getElementById('vac-name').value,
+    dose:document.getElementById('vac-dose').value
+  };
+  const r=await fetch('/web/api/med',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const data=await r.json();
+  if(data.ok){alert('已保存疫苗记录！');window.location.href='/web';}
+  else{alert('保存失败：'+data.error);}
+}
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>resolve(e.target.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>
+"""
+
+
+@app.route("/web/med")
+def web_med():
+    """医疗疫苗添加页面"""
+    return render_template_string(MED_PAGE_HTML)
+
+
+@app.route("/web/api/med", methods=["POST"])
+def web_api_med():
+    """医疗疫苗添加API"""
+    data = request.get_json()
+    if not data:
+        return jsonify({"ok": False, "error": "无效请求"}), 400
+    try:
+        rec = load_data()
+        if data.get("type") == "medical":
+            entry = {
+                "date": data.get("date", time.strftime("%Y-%m-%d")),
+                "type": "illness",
+                "hospital": data.get("hospital", ""),
+                "department": data.get("department", ""),
+                "doctor": data.get("doctor", ""),
+                "chief_complaint": data.get("chief_complaint", ""),
+                "exam": data.get("exam", ""),
+                "diagnosis": data.get("diagnosis", ""),
+                "advice": data.get("advice", ""),
+                "medication": data.get("medication", ""),
+            }
+            # 图片转为路径占位（当前环境存储有限，仅记录数量）
+            photos = data.get("photos", [])
+            if photos:
+                rec["photos"] = len(photos)
+            rec["medical_records"].append(entry)
+            rec["medical_records"].sort(key=lambda x: x["date"])
+        elif data.get("type") == "vaccine":
+            rec["vaccine_records"].append({
+                "date": data.get("date", time.strftime("%Y-%m-%d")),
+                "vaccine": data.get("vaccine", ""),
+                "dose": data.get("dose", ""),
+                "status": "completed"
+            })
+            rec["vaccine_records"].sort(key=lambda x: x["date"])
+        else:
+            return jsonify({"ok": False, "error": "未知类型"}), 400
+        save_data(rec)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 
 
 # ============ 健康检查 ============
