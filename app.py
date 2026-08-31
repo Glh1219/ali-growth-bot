@@ -372,49 +372,75 @@ REPORT_HTML_TEMPLATE = """
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#f0f2f5;color:#333;padding-bottom:40px;}
-  .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px 20px;text-align:center;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#F9F9F9;color:#333;padding-bottom:40px;}
+  .header{background:linear-gradient(135deg,#2B4A9A 0%,#3A5BB5 100%);color:white;padding:30px 20px;text-align:center;}
   .header h1{font-size:28px;margin-bottom:8px;}
   .header .info{font-size:14px;opacity:0.9;}
   .container{max-width:1000px;margin:20px auto;padding:0 16px;}
-  .card{background:white;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-  .card h2{font-size:20px;margin-bottom:16px;color:#333;border-left:4px solid #667eea;padding-left:12px;}
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
-  .stat-box{background:linear-gradient(135deg,#f5f7fa 0%,#e3e8f0 100%);border-radius:10px;padding:16px 12px;text-align:center;position:relative;overflow:hidden;}
-  .stat-box .label{font-size:12px;color:#888;margin-bottom:4px;}
-  .stat-box .value{font-size:22px;font-weight:bold;color:#333;}
-  .stat-box .unit{font-size:12px;color:#aaa;margin-left:2px;}
-  .stat-box .extra{font-size:11px;color:#667eea;margin-top:4px;font-weight:500;}
-  .stat-box.highlight{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
-  .stat-box.highlight .label,.stat-box.highlight .extra{color:rgba(255,255,255,0.8);}
+  .card{background:white;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(43,74,154,0.06);}
+  .card h2{font-size:20px;margin-bottom:16px;color:#2B4A9A;border-left:4px solid #9990ED;padding-left:12px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .stat-box{background:#F9F9F9;border:1px solid #f0f0f0;border-radius:12px;padding:16px 12px;text-align:center;position:relative;overflow:hidden;}
+  .stat-box .label{font-size:12px;color:#888;margin-bottom:6px;}
+  .stat-box .value{font-size:28px;font-weight:bold;color:#2B4A9A;}
+  .stat-box .unit{font-size:13px;color:#aaa;margin-left:2px;}
+  .stat-box .extra{font-size:11px;margin-top:4px;font-weight:500;}
+  .stat-box.highlight{background:linear-gradient(135deg,#2B4A9A 0%,#3A5BB5 100%);}
+  .stat-box.highlight .label{color:rgba(255,255,255,0.8);}
   .stat-box.highlight .value,.stat-box.highlight .unit{color:#fff;}
-  .stat-row{display:flex;align-items:center;gap:8px;justify-content:center;}
-  .trend-up{color:#4caf50;font-size:14px;}
-  .trend-down{color:#f44336;font-size:14px;}
-  .trend-flat{color:#999;font-size:14px;}
-  .percentile-bar{margin-top:8px;height:6px;border-radius:3px;background:linear-gradient(90deg,#ff8a80 0%,#ff8a80 15%,#a5d6a7 15%,#a5d6a7 85%,#ff8a80 85%);position:relative;}
-  .percentile-marker{position:absolute;top:-3px;width:3px;height:12px;background:#667eea;border-radius:2px;transform:translateX(-50%);}
-  .next-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8f9ff;border-radius:8px;margin-top:8px;font-size:14px;}
+  .stat-box.highlight .extra{color:#FAD465;}
+  .stat-box.full-width{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:18px 24px;}
+  .stat-box.full-width .left{flex:1;}
+  .stat-box.full-width .right{text-align:right;}
+  .stat-box.full-width .value{font-size:32px;}
+  .stat-box.coral .extra{color:#F86C5B;}
+  .stat-box.mint .extra{color:#66D9D0;}
+  .stat-box.yellow .extra{color:#FAD465;}
+  .stat-box.purple .extra{color:#9990ED;}
+  .percentile-bar{margin-top:8px;height:6px;border-radius:3px;background:linear-gradient(90deg,#F86C5B 0%,#F86C5B 15%,#66D9D0 15%,#66D9D0 85%,#F86C5B 85%);position:relative;}
+  .percentile-marker{position:absolute;top:-3px;width:3px;height:12px;background:#2B4A9A;border-radius:2px;transform:translateX(-50%);}
+  .next-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F9F9FF;border-radius:10px;margin-top:8px;font-size:14px;border:1px solid #f0f0fa;}
   .next-item .icon{font-size:20px;flex-shrink:0;}
   .next-item .info{flex:1;}
   .next-item .info .name{font-weight:600;color:#333;}
   .next-item .info .date{font-size:12px;color:#888;margin-top:2px;}
-  .next-item .countdown{font-size:13px;font-weight:600;color:#667eea;white-space:nowrap;}
+  .next-item .countdown{font-size:13px;font-weight:600;color:#9990ED;white-space:nowrap;}
+  .collapsible-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+  .collapsible-header .arrow{transition:transform 0.3s;font-size:14px;color:#9990ED;}
+  .collapsible-header.collapsed .arrow{transform:rotate(-90deg);}
+  .collapsible-content{overflow:hidden;transition:max-height 0.3s ease-out;max-height:3000px;}
+  .collapsible-content.collapsed{max-height:0;}
+  .advice-section{margin-top:8px;}
+  .advice-item{padding:12px 16px;background:#F9F9F9;border-radius:10px;margin-top:8px;border-left:3px solid #9990ED;}
+  .advice-item .advice-title{font-size:14px;font-weight:600;color:#2B4A9A;margin-bottom:4px;}
+  .advice-item .advice-text{font-size:13px;color:#666;line-height:1.6;}
+  .advice-item.diet{border-left-color:#FAD465;}
+  .advice-item.diet .advice-title{color:#B8860B;}
+  .advice-item.sleep{border-left-color:#9990ED;}
+  .advice-item.sleep .advice-title{color:#7B68EE;}
+  .advice-item.exercise{border-left-color:#66D9D0;}
+  .advice-item.exercise .advice-title{color:#26A69A;}
+  .advice-item.skill{border-left-color:#F86C5B;}
+  .advice-item.skill .advice-title{color:#E53935;}
+  .advice-item.life{border-left-color:#93C1FE;}
+  .advice-item.life .advice-title{color:#5C9BFE;}
+  .advice-item.season{border-left-color:#2B4A9A;}
+  .advice-item.season .advice-title{color:#2B4A9A;}
   .chart-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;}
   .chart-controls .ctrl-group{display:flex;align-items:center;gap:6px;}
   .chart-controls label{font-size:13px;color:#666;}
-  .chart-controls select{padding:4px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff;cursor:pointer;outline:none;}
-  .chart-controls select:focus{border-color:#667eea;}
+  .chart-controls select{padding:4px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff;cursor:pointer;outline:none;color:#2B4A9A;}
+  .chart-controls select:focus{border-color:#9990ED;}
   .chart-container{position:relative;height:380px;margin:10px 0;}
   table{width:100%;border-collapse:collapse;margin-top:12px;}
   th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #eee;font-size:14px;}
-  th{background:#f8f9fa;font-weight:600;color:#555;}
+  th{background:#F9F9F9;font-weight:600;color:#555;}
   .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;}
-  .badge-vaccine{background:#d1ecf1;color:#0c5460;}
-  .badge-birth{background:#fff3cd;color:#856404;}
-  .badge-checkup{background:#e2d9f3;color:#4a148c;}
+  .badge-vaccine{background:#E0F7FA;color:#00838F;}
+  .badge-birth{background:#FFF8E1;color:#F57F17;}
+  .badge-checkup{background:#EDE7F6;color:#4527A0;}
   .section-empty{text-align:center;color:#999;padding:20px;}
-  @media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}.card{padding:16px;}.chart-container{height:300px;}}
+  @media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}.stat-box.full-width{grid-column:1/-1;}.card{padding:16px;}.chart-container{height:300px;}}
 </style>
 </head>
 <body>
@@ -428,52 +454,43 @@ REPORT_HTML_TEMPLATE = """
     <div class="stats-grid">
       <div class="stat-box highlight">
         <div class="label">当前月龄</div>
-        <div class="stat-row"><div class="value">{{ age_months }}<span class="unit">月</span></div></div>
+        <div class="value">{{ age_months }}<span class="unit">月</span></div>
         <div class="extra">{{ age_years }}岁{{ age_months_remainder }}月</div>
       </div>
-      <div class="stat-box">
-        <div class="label">最新身高</div>
-        <div class="stat-row"><div class="value">{{ latest_height }}<span class="unit">cm</span></div></div>
-        <div class="extra">{{ height_percentile_desc }}</div>
-        <div class="percentile-bar"><div class="percentile-marker" style="left:{{ height_percentile_pos }}%"></div></div>
-      </div>
-      <div class="stat-box">
-        <div class="label">最新体重</div>
-        <div class="stat-row"><div class="value">{{ latest_weight }}<span class="unit">kg</span></div></div>
-        <div class="extra">{{ weight_percentile_desc }}</div>
-        <div class="percentile-bar"><div class="percentile-marker" style="left:{{ weight_percentile_pos }}%"></div></div>
-      </div>
-      <div class="stat-box">
-        <div class="label">BMI</div>
-        <div class="stat-row"><div class="value">{{ bmi }}<span class="unit"></span></div></div>
-        <div class="extra">{{ bmi_desc }}</div>
-      </div>
-      <div class="stat-box">
+      <div class="stat-box mint">
         <div class="label">身高增速</div>
-        <div class="stat-row"><div class="value">{{ height_growth_rate }}<span class="unit">cm/月</span></div></div>
+        <div class="value">{{ height_growth_rate }}<span class="unit">cm/月</span></div>
         <div class="extra">近{{ growth_rate_months }}个月</div>
       </div>
-      <div class="stat-box">
+      <div class="stat-box coral">
         <div class="label">体重增速</div>
-        <div class="stat-row"><div class="value">{{ weight_growth_rate }}<span class="unit">kg/月</span></div></div>
+        <div class="value">{{ weight_growth_rate }}<span class="unit">kg/月</span></div>
         <div class="extra">近{{ growth_rate_months }}个月</div>
       </div>
-      <div class="stat-box">
-        <div class="label">较出生增长</div>
-        <div class="stat-row">
-          <div class="value" style="font-size:16px;">{{ height_gain }}cm / {{ weight_gain }}kg</div>
+      <div class="stat-box full-width coral">
+        <div class="left">
+          <div class="label">身高（{{ latest_record_date }}）</div>
+          <div class="extra" style="margin-top:4px;">{{ height_percentile_desc }}</div>
+          <div class="percentile-bar"><div class="percentile-marker" style="left:{{ height_percentile_pos }}%"></div></div>
         </div>
-        <div class="extra">身高+{{ height_gain_pct }}% / 体重+{{ weight_gain_pct }}%</div>
+        <div class="right">
+          <div class="value">{{ latest_height }}<span class="unit">cm</span></div>
+        </div>
       </div>
-      <div class="stat-box">
-        <div class="label">记录总数</div>
-        <div class="stat-row"><div class="value">{{ total_records }}<span class="unit">条</span></div></div>
-        <div class="extra">就医{{ medical_count }} / 疫苗{{ vaccine_count }}</div>
+      <div class="stat-box full-width mint">
+        <div class="left">
+          <div class="label">体重（{{ latest_record_date }}）</div>
+          <div class="extra" style="margin-top:4px;">{{ weight_percentile_desc }}</div>
+          <div class="percentile-bar"><div class="percentile-marker" style="left:{{ weight_percentile_pos }}%"></div></div>
+        </div>
+        <div class="right">
+          <div class="value">{{ latest_weight }}<span class="unit">kg</span></div>
+        </div>
       </div>
     </div>
     {% if next_items %}
     <div style="margin-top:16px;">
-      <div style="font-size:14px;color:#666;margin-bottom:4px;">📅 近期节点</div>
+      <div style="font-size:14px;color:#666;margin-bottom:4px;">近期节点</div>
       {% for item in next_items %}
       <div class="next-item">
         <div class="icon">{{ item.icon }}</div>
@@ -486,29 +503,33 @@ REPORT_HTML_TEMPLATE = """
       {% endfor %}
     </div>
     {% endif %}
+    <div class="advice-section" style="margin-top:16px;">
+      <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+        <h2 style="margin:0;font-size:18px;color:#2B4A9A;border-left:4px solid #FAD465;padding-left:12px;">喂养建议</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="collapsible-content collapsed">
+        {% for a in advice_items %}
+        <div class="advice-item {{ a.type }}">
+          <div class="advice-title">{{ a.icon }} {{ a.title }}</div>
+          <div class="advice-text">{{ a.text }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 
   <div class="card">
     <h2>身高生长曲线</h2>
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="heightRange" onchange="updateChart('height')">
+        <option value="auto">默认（近1年+后3月）</option>
         <option value="0-60">0-60月（全部）</option>
         <option value="0-24">0-24月</option>
         <option value="0-36">0-36月</option>
         <option value="0-12">0-12月</option>
         <option value="12-36">12-36月</option>
         <option value="24-60">24-60月</option>
-      </select></div>
-      <div class="ctrl-group"><label>颗粒度</label><select id="heightStep" onchange="updateChart('height')">
-        <option value="all">标准节点</option>
-        <option value="1">每月</option>
-        <option value="3">每3月</option>
-        <option value="6">每6月</option>
-      </select></div>
-      <div class="ctrl-group"><label>WHO百分位</label><select id="heightPercentiles" onchange="updateChart('height')">
-        <option value="all">全部(P3/P15/P50/P85/P97)</option>
-        <option value="350">P3/P50/P97</option>
-        <option value="50">仅P50</option>
       </select></div>
     </div>
     <div class="chart-container"><canvas id="heightChart"></canvas></div>
@@ -518,6 +539,7 @@ REPORT_HTML_TEMPLATE = """
     <h2>体重生长曲线</h2>
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="weightRange" onchange="updateChart('weight')">
+        <option value="auto">默认（近1年+后3月）</option>
         <option value="0-60">0-60月（全部）</option>
         <option value="0-24">0-24月</option>
         <option value="0-36">0-36月</option>
@@ -525,44 +547,51 @@ REPORT_HTML_TEMPLATE = """
         <option value="12-36">12-36月</option>
         <option value="24-60">24-60月</option>
       </select></div>
-      <div class="ctrl-group"><label>颗粒度</label><select id="weightStep" onchange="updateChart('weight')">
-        <option value="all">标准节点</option>
-        <option value="1">每月</option>
-        <option value="3">每3月</option>
-        <option value="6">每6月</option>
-      </select></div>
-      <div class="ctrl-group"><label>WHO百分位</label><select id="weightPercentiles" onchange="updateChart('weight')">
-        <option value="all">全部(P3/P15/P50/P85/P97)</option>
-        <option value="350">P3/P50/P97</option>
-        <option value="50">仅P50</option>
-      </select></div>
     </div>
     <div class="chart-container"><canvas id="weightChart"></canvas></div>
   </div>
 
-  <div class="card"><h2>生长记录</h2>
-    <table><thead><tr><th>日期</th><th>月龄</th><th>身高</th><th>体重</th><th>来源</th></tr></thead><tbody>
-    {% for r in growth_records %}
-    <tr><td>{{ r.date }}</td><td>{{ r.age_months }}</td><td>{{ r.height_cm }}cm</td><td>{{ r.weight_kg }}kg</td><td>{{ r.source }}</td></tr>
-    {% endfor %}
-    </tbody></table>
+  <div class="card">
+    <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #66D9D9;padding-left:12px;">生长记录</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content collapsed">
+      <table><thead><tr><th>日期</th><th>月龄</th><th>身高</th><th>体重</th></tr></thead><tbody>
+      {% for r in growth_records %}
+      <tr><td>{{ r.date }}</td><td>{{ r.age_months }}</td><td>{{ r.height_cm }}cm</td><td>{{ r.weight_kg }}kg</td></tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
   </div>
   {% if medical_records %}
-  <div class="card"><h2>就医记录</h2>
-    <table><thead><tr><th>日期</th><th>类型</th><th>描述</th></tr></thead><tbody>
-    {% for m in medical_records %}
-    <tr><td>{{ m.date }}</td><td><span class="badge badge-{{ m.type }}">{{ m.type }}</span></td><td>{{ m.description }}</td></tr>
-    {% endfor %}
-    </tbody></table>
+  <div class="card">
+    <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #9990ED;padding-left:12px;">就医记录</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content collapsed">
+      <table><thead><tr><th>日期</th><th>类型</th><th>描述</th></tr></thead><tbody>
+      {% for m in medical_records %}
+      <tr><td>{{ m.date }}</td><td><span class="badge badge-{{ m.type }}">{{ m.type }}</span></td><td>{{ m.description }}</td></tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
   </div>
   {% endif %}
   {% if vaccine_records %}
-  <div class="card"><h2>疫苗记录</h2>
-    <table><thead><tr><th>日期</th><th>疫苗名称</th><th>状态</th></tr></thead><tbody>
-    {% for v in vaccine_records %}
-    <tr><td>{{ v.date }}</td><td>{{ v.vaccine_name }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
-    {% endfor %}
-    </tbody></table>
+  <div class="card">
+    <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #F86C5B;padding-left:12px;">疫苗记录</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content collapsed">
+      <table><thead><tr><th>日期</th><th>疫苗名称</th><th>状态</th></tr></thead><tbody>
+      {% for v in vaccine_records %}
+      <tr><td>{{ v.date }}</td><td>{{ v.vaccine_name }}</td><td><span class="badge badge-vaccine">已接种</span></td></tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
   </div>
   {% endif %}
 </div>
@@ -571,49 +600,30 @@ const allWhoHeight={{ who_height|safe }};
 const allWhoWeight={{ who_weight|safe }};
 const actualHeights={{ actual_heights|safe }};
 const actualWeights={{ actual_weights|safe }};
+const autoMin={{ chart_min_month }};
+const autoMax={{ chart_max_month }};
 let heightChart=null,weightChart=null;
+let tooltipTimer=null;
 
-function filterWhoData(whoData,range,step,percentileMode){
-  const [minM,maxM]=range.split('-').map(Number);
-  let months=whoData.map(d=>d[0]).filter(m=>m>=minM&&m<=maxM).sort((a,b)=>a-b);
-  if(step!=='all'){
-    const stepNum=Number(step);
-    months=months.filter(m=>m%stepNum===0);
-    if(!months.includes(minM))months.unshift(minM);
-    if(!months.includes(maxM))months.push(maxM);
-  }
-  let pCols;
-  if(percentileMode==='all')pCols=[1,2,3,4,5];
-  else if(percentileMode==='350')pCols=[1,3,5];
-  else pCols=[3];
-  return {months,pCols,whoData};
+function toggleSection(header){
+  header.classList.toggle('collapsed');
+  header.nextElementSibling.classList.toggle('collapsed');
 }
 
-function buildChart(ctxId,whoData,actual,range,step,percentileMode,yLabel){
-  const [minM,maxM]=range.split('-').map(Number);
+function buildChart(ctxId,whoData,actual,range,yLabel){
+  let minM,maxM;
+  if(range==='auto'){minM=autoMin;maxM=autoMax;}
+  else{const parts=range.split('-');minM=Number(parts[0]);maxM=Number(parts[1]);}
   let months=whoData.map(d=>d[0]).filter(m=>m>=minM&&m<=maxM).sort((a,b)=>a-b);
-  if(step!=='all'){
-    const stepNum=Number(step);
-    // Keep full WHO key months but filter for display
-    months=months.filter(m=>m%stepNum===0);
-    if(!months.includes(minM))months.unshift(minM);
-    if(!months.includes(maxM))months.push(maxM);
-  }
-
-  let pCols;
   const datasets=[];
   const pConfig={
-    1:{label:'P3',color:'#ffab91',dash:[4,4]},
-    2:{label:'P15',color:'#ffcc80',dash:[2,3]},
-    3:{label:'P50',color:'#81c784',dash:[6,3]},
-    4:{label:'P85',color:'#ffcc80',dash:[2,3]},
-    5:{label:'P97',color:'#ffab91',dash:[4,4]}
+    1:{label:'P3',color:'#F86C5B',dash:[4,4]},
+    2:{label:'P15',color:'#FAD465',dash:[3,3]},
+    3:{label:'P50',color:'#66D9D0',dash:[6,3]},
+    4:{label:'P85',color:'#FAD465',dash:[3,3]},
+    5:{label:'P97',color:'#F86C5B',dash:[4,4]}
   };
-  if(percentileMode==='all')pCols=[1,2,3,4,5];
-  else if(percentileMode==='350')pCols=[1,3,5];
-  else pCols=[3];
-
-  pCols.forEach(col=>{
+  [1,2,3,4,5].forEach(col=>{
     datasets.push({
       label:pConfig[col].label,
       data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[col]:null}),
@@ -623,45 +633,39 @@ function buildChart(ctxId,whoData,actual,range,step,percentileMode,yLabel){
       order:2
     });
   });
-
   // P3-P97 fill band
-  if(pCols.includes(1)&&pCols.includes(5)){
-    datasets.push({
-      label:'正常范围',
-      data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[5]:null}),
-      borderColor:'transparent',
-      backgroundColor:'rgba(129,199,132,0.08)',
-      fill:'+0',
-      pointRadius:0,
-      order:3
-    });
-    datasets.push({
-      label:'_p3fill',
-      data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[1]:null}),
-      borderColor:'transparent',
-      backgroundColor:'transparent',
-      fill:false,pointRadius:0,
-      order:3,
-      datalabels:{display:false}
-    });
-  }
-
-  // Actual data: ensure correct z-order (on top)
+  datasets.push({
+    label:'正常范围',
+    data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[5]:null}),
+    borderColor:'transparent',
+    backgroundColor:'rgba(102,217,208,0.07)',
+    fill:'+1',
+    pointRadius:0,
+    order:3
+  });
+  datasets.push({
+    label:'_p3fill',
+    data:months.map(m=>{const d=whoData.find(x=>x[0]===m);return d?d[1]:null}),
+    borderColor:'transparent',
+    backgroundColor:'transparent',
+    fill:false,pointRadius:0,
+    order:3
+  });
+  // Actual data on top
   const filteredActual=actual.filter(d=>d[0]>=minM&&d[0]<=maxM);
   datasets.push({
     label:'实际测量',
     data:filteredActual.map(d=>({x:d[0],y:d[1]})),
-    borderColor:'#667eea',
-    backgroundColor:'#667eea',
+    borderColor:'#2B4A9A',
+    backgroundColor:'#2B4A9A',
     borderWidth:3,fill:false,
-    pointRadius:7,pointHoverRadius:9,
-    pointBackgroundColor:'#667eea',
+    pointRadius:7,pointHoverRadius:10,
+    pointBackgroundColor:'#2B4A9A',
     pointBorderColor:'#fff',pointBorderWidth:2,
     tension:0.3,
     order:1,
     parsing:{xAxisKey:'x',yAxisKey:'y'}
   });
-
   const ctx=document.getElementById(ctxId).getContext('2d');
   return new Chart(ctx,{
     type:'line',
@@ -671,11 +675,20 @@ function buildChart(ctxId,whoData,actual,range,step,percentileMode,yLabel){
       interaction:{mode:'nearest',intersect:false},
       plugins:{
         legend:{position:'bottom',labels:{usePointStyle:true,filter:item=>!item.text.startsWith('_')&&item.text!=='正常范围'||item.text==='正常范围'?true:false}},
-        tooltip:{callbacks:{label:function(ctx){const v=ctx.parsed.y;return ctx.dataset.label+': '+v+(yLabel==='cm'?'cm':'kg');}}}
+        tooltip:{
+          callbacks:{label:function(ctx){const v=ctx.parsed.y;return ctx.dataset.label+': '+v+(yLabel==='cm'?'cm':'kg');}},
+          external:function(context){
+            if(tooltipTimer){clearTimeout(tooltipTimer);tooltipTimer=null;}
+            tooltipTimer=setTimeout(function(){
+              context.tooltip.opacity=0;
+              context.chart.update('none');
+            },3000);
+          }
+        }
       },
       scales:{
         x:{type:'linear',title:{display:true,text:'月龄'},min:minM,max:maxM,
-           ticks:{stepSize:step==='all'?(maxM>24?6:3):Number(step)}},
+           ticks:{stepSize:maxM-minM>24?6:3}},
         y:{title:{display:true,text:yLabel},beginAtZero:false}
       }
     }
@@ -686,21 +699,13 @@ function updateChart(type){
   if(type==='height'){
     if(heightChart)heightChart.destroy();
     const range=document.getElementById('heightRange').value;
-    const step=document.getElementById('heightStep').value;
-    const pm=document.getElementById('heightPercentiles').value;
-    heightChart=buildChart('heightChart',allWhoHeight,actualHeights,range,step,pm,'cm');
+    heightChart=buildChart('heightChart',allWhoHeight,actualHeights,range,'cm');
   }else{
     if(weightChart)weightChart.destroy();
     const range=document.getElementById('weightRange').value;
-    const step=document.getElementById('weightStep').value;
-    const pm=document.getElementById('weightPercentiles').value;
-    weightChart=buildChart('weightChart',allWhoWeight,actualWeights,range,step,pm,'kg');
+    weightChart=buildChart('weightChart',allWhoWeight,actualWeights,range,'kg');
   }
 }
-
-// Default: 0-36 month range, standard step, all percentiles
-document.getElementById('heightRange').value='0-36';
-document.getElementById('weightRange').value='0-36';
 updateChart('height');
 updateChart('weight');
 </script>
@@ -745,10 +750,33 @@ def _find_who_row(who_data, age_months):
     return best
 
 
+def _build_advice(age_months, season):
+    """根据月龄和季节生成喂养建议"""
+    advice = []
+    if age_months < 24:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"保证每日奶量400-500ml，三餐两点心，食物切碎便于咀嚼。注意补充含铁食物如红肉、蛋黄。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动至少1小时，鼓励跑跳、攀爬等大运动，同时练习串珠、翻书等精细动作。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多读绘本、听儿歌，鼓励模仿说话和简单短语。认识常见物品名称，培养因果关系理解。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"学习自己用勺子吃饭、协助收玩具。开始如厕训练，培养洗手等卫生习惯。"})
+    elif age_months < 36:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"每日奶量维持350-400ml，三餐规律，食物种类多样化。注意蛋白质（鱼、肉、蛋）和新鲜蔬果摄入，控制零食和含糖饮料。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1-2小时，鼓励跑、跳、踢球、骑滑板车等。练习上下楼梯、单脚站立等平衡运动。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多进行亲子阅读，鼓励复述简单故事。练习颜色、形状分类，数数1-10。涂鸦画画锻炼手眼协调。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"练习自己穿脱简单衣物、洗手擦嘴。学习自己上厕所。鼓励帮忙做简单家务如收碗筷。培养固定作息时间。"})
+    else:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"三餐两点心制，保证均衡营养。培养良好就餐习惯，不挑食不偏食。适当增加粗粮和膳食纤维。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动2小时以上，鼓励跑跳攀爬、骑三轮车等。可开始尝试简单的游泳、球类运动。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"加强语言表达训练，鼓励讲完整句子和简单故事。练习画圆、折纸、使用安全剪刀。认识数字和简单汉字。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"学习独立穿衣、系扣子、刷牙。培养整理玩具和床铺的习惯。鼓励自己吃饭不撒漏。"})
+    # 季节建议
+    advice.append({"type":"sleep","icon":"😴","title":"作息","text":f"保持早睡早起（20:00-21:00入睡），午睡1-1.5小时，总睡眠11-13小时。{season}注意调整室内温湿度，避免过热或过冷影响睡眠质量。"})
+    return advice
+
+
 @app.route("/report")
 def report():
     """生成HTML成长报告页面"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, date as dt_date
 
     data = load_data()
     birth_date = data["child"]["birth_date"]
@@ -764,6 +792,12 @@ def report():
     for r in growth:
         record_date = datetime.strptime(r["date"], "%Y-%m-%d")
         r["age_months"] = round((record_date - birth).days / 30.44, 1)
+
+    # 生长记录逆序
+    growth_display = sorted(growth, key=lambda x: x["date"], reverse=True)
+
+    # 就医记录逆序
+    medical_display = sorted(data.get("medical_records", []), key=lambda x: x["date"], reverse=True)
 
     # WHO完整数据（0-60月，5个百分位列）
     who_height = [
@@ -794,33 +828,14 @@ def report():
 
     latest_height = round(growth[-1]["height_cm"], 1) if growth else 0
     latest_weight = round(growth[-1]["weight_kg"], 1) if growth else 0
+    latest_record_date = growth[-1]["date"] if growth else "N/A"
+    latest_age_months = growth[-1]["age_months"] if growth else age_months
 
     # 百分位评估
-    h_who_row = _find_who_row(who_height, age_months)
-    w_who_row = _find_who_row(who_weight, age_months)
+    h_who_row = _find_who_row(who_height, latest_age_months)
+    w_who_row = _find_who_row(who_weight, latest_age_months)
     h_pct_desc, h_pct_pos = _calc_percentile(latest_height, h_who_row)
     w_pct_desc, w_pct_pos = _calc_percentile(latest_weight, w_who_row)
-
-    # BMI
-    bmi = round(latest_weight / ((latest_height / 100) ** 2), 1) if latest_height > 0 else 0
-    bmi_who_row = None
-    for row in [[0,10.2,13.3,16.1,18.2],[6,13.7,16.7,18.2,19.9],[12,14.3,17.0,18.6,20.4],[24,13.7,16.2,18.0,19.8],[36,13.5,15.6,17.6,19.4]]:
-        if abs(row[0] - age_months) <= 6:
-            bmi_who_row = row
-            break
-    if bmi_who_row:
-        if bmi < bmi_who_row[1]:
-            bmi_desc = "偏低"
-        elif bmi < bmi_who_row[2]:
-            bmi_desc = "正常偏低"
-        elif bmi < bmi_who_row[3]:
-            bmi_desc = "正常"
-        elif bmi < bmi_who_row[4]:
-            bmi_desc = "正常偏高"
-        else:
-            bmi_desc = "超重"
-    else:
-        bmi_desc = "正常"
 
     # 生长速率（最近N个月）
     growth_rate_months = 6
@@ -834,19 +849,13 @@ def report():
         height_growth_rate = 0
         weight_growth_rate = 0
 
-    # 较出生增长
-    birth_height = data["child"].get("birth_height_cm", 47)
-    birth_weight = data["child"].get("birth_weight_g", 1650) / 1000
-    height_gain = round(latest_height - birth_height, 1)
-    weight_gain = round(latest_weight - birth_weight, 1)
-    height_gain_pct = round(height_gain / birth_height * 100) if birth_height else 0
-    weight_gain_pct = round(weight_gain / birth_weight * 100) if birth_weight else 0
+    # 图表默认区间：最新记录前1年后3月
+    chart_min_month = int(max(0, latest_age_months - 12))
+    chart_max_month = int(latest_age_months + 3)
 
-    # 近期节点（体检/疫苗）
-    from datetime import date as dt_date
+    # 近期节点
     next_items = []
     today = dt_date.today()
-# 体检节点
     checkup_items = [
         ("30月龄体检", "2026-09-12", "🏥"),
         ("3岁体检", "2027-03-13", "🏥"),
@@ -868,7 +877,30 @@ def report():
                 next_items.append({"name": name, "date": dstr, "icon": icon, "countdown": countdown})
         except:
             pass
-    next_items = next_items[:4]  # 最多显示4个
+    next_items = next_items[:4]
+
+    # 季节判断
+    month = now.month
+    if month in [3,4,5]:
+        season = "春季"
+    elif month in [6,7,8]:
+        season = "夏季"
+    elif month in [9,10,11]:
+        season = "秋季"
+    else:
+        season = "冬季"
+
+    # 喂养建议
+    advice_items = _build_advice(age_months, season)
+
+    # 季节温度建议
+    season_advice_map = {
+        "春季": f"当前{season}，气温回暖但早晚温差大，注意"春捂"适时增减衣物。花粉季注意过敏，外出可戴口罩。多晒太阳补充维生素D。",
+        "夏季": f"当前{season}，炎热需防中暑，避免正午暴晒。饮食清淡，多喝水防脱水。空调温度建议26-28℃，注意蚊虫防护。",
+        "秋季": f"当前{season}，干燥需多补充水分和润肺食物如梨、百合。早晚凉需适时添衣。是接种流感疫苗的好时机。",
+        "冬季": f"当前{season}，寒冷需注意保暖但不宜过度包裹。室内开暖气需注意加湿通风。多喝温水，适当增加热量摄入。",
+    }
+    advice_items.append({"type":"season","icon":"🌡","title":f"季节建议（{season}）","text":season_advice_map[season]})
 
     return render_template_string(
         REPORT_HTML_TEMPLATE,
@@ -878,31 +910,27 @@ def report():
         age_months_remainder=age_months_remainder,
         latest_height=latest_height,
         latest_weight=latest_weight,
-        total_records=len(growth),
-        growth_records=growth,
-        medical_records=data.get("medical_records", []),
+        latest_record_date=latest_record_date,
+        growth_records=growth_display,
+        medical_records=medical_display,
         vaccine_records=data.get("vaccine_records", []),
-        medical_count=len(data.get("medical_records", [])),
-        vaccine_count=len(data.get("vaccine_records", [])),
         height_percentile_desc=h_pct_desc,
         height_percentile_pos=round(h_pct_pos),
         weight_percentile_desc=w_pct_desc,
         weight_percentile_pos=round(w_pct_pos),
-        bmi=bmi,
-        bmi_desc=bmi_desc,
         height_growth_rate=height_growth_rate,
         weight_growth_rate=weight_growth_rate,
         growth_rate_months=growth_rate_months,
-        height_gain=height_gain,
-        weight_gain=weight_gain,
-        height_gain_pct=height_gain_pct,
-        weight_gain_pct=weight_gain_pct,
         next_items=next_items,
+        advice_items=advice_items,
+        chart_min_month=chart_min_month,
+        chart_max_month=chart_max_month,
         who_height=json.dumps(who_height),
         who_weight=json.dumps(who_weight),
         actual_heights=json.dumps(actual_heights),
         actual_weights=json.dumps(actual_weights)
     )
+
 
 
 # ============ H5聊天页面 ============
