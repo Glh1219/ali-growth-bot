@@ -461,33 +461,29 @@ REPORT_HTML_TEMPLATE = """
   .stat-box.purple .extra{color:#9990ED;}
   .percentile-bar{margin-top:8px;height:6px;border-radius:3px;background:linear-gradient(90deg,#F86C5B 0%,#F86C5B 15%,#66D9D0 15%,#66D9D0 85%,#F86C5B 85%);position:relative;}
   .percentile-marker{position:absolute;top:-3px;width:3px;height:12px;background:#2B4A9A;border-radius:2px;transform:translateX(-50%);}
-  .next-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#F9F9FF;border-radius:10px;margin-top:8px;font-size:14px;border:1px solid #f0f0fa;}
-  .next-item .icon{font-size:20px;flex-shrink:0;}
-  .next-item .info{flex:1;}
-  .next-item .info .name{font-weight:600;color:#333;}
-  .next-item .info .date{font-size:12px;color:#888;margin-top:2px;}
-  .next-item .countdown{font-size:13px;font-weight:600;color:#9990ED;white-space:nowrap;}
+  .item-card{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#F9F9FF;border-radius:10px;margin-top:8px;font-size:14px;border:1px solid #f0f0fa;}
+  .item-card .icon{font-size:20px;flex-shrink:0;}
+  .item-card .info{flex:1;}
+  .item-card .info .name{font-weight:600;color:#333;}
+  .item-card .info .date{font-size:12px;color:#888;margin-top:2px;}
+  .item-card .countdown{font-size:13px;font-weight:600;color:#9990ED;white-space:nowrap;}
+  .item-card.diet{border-left:3px solid #FAD465;}
+  .item-card.diet .name{color:#B8860B;}
+  .item-card.sleep{border-left:3px solid #9990ED;}
+  .item-card.sleep .name{color:#7B68EE;}
+  .item-card.exercise{border-left:3px solid #66D9D0;}
+  .item-card.exercise .name{color:#26A69A;}
+  .item-card.skill{border-left:3px solid #F86C5B;}
+  .item-card.skill .name{color:#E53935;}
+  .item-card.life{border-left:3px solid #93C1FE;}
+  .item-card.life .name{color:#5C9BFE;}
+  .item-card.season{border-left:3px solid #2B4A9A;}
+  .item-card.season .name{color:#2B4A9A;}
   .collapsible-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
   .collapsible-header .arrow{transition:transform 0.3s;font-size:14px;color:#9990ED;}
   .collapsible-header.collapsed .arrow{transform:rotate(-90deg);}
-  .collapsible-content{overflow:hidden;transition:max-height 0.3s ease-out;max-height:3000px;}
+  .collapsible-content{overflow:hidden;transition:max-height 0.3s ease-out;max-height:4000px;}
   .collapsible-content.collapsed{max-height:0;}
-  .advice-section{margin-top:8px;}
-  .advice-item{padding:12px 16px;background:#F9F9F9;border-radius:10px;margin-top:8px;border-left:3px solid #9990ED;}
-  .advice-item .advice-title{font-size:14px;font-weight:600;color:#2B4A9A;margin-bottom:4px;}
-  .advice-item .advice-text{font-size:13px;color:#666;line-height:1.6;}
-  .advice-item.diet{border-left-color:#FAD465;}
-  .advice-item.diet .advice-title{color:#B8860B;}
-  .advice-item.sleep{border-left-color:#9990ED;}
-  .advice-item.sleep .advice-title{color:#7B68EE;}
-  .advice-item.exercise{border-left-color:#66D9D0;}
-  .advice-item.exercise .advice-title{color:#26A69A;}
-  .advice-item.skill{border-left-color:#F86C5B;}
-  .advice-item.skill .advice-title{color:#E53935;}
-  .advice-item.life{border-left-color:#93C1FE;}
-  .advice-item.life .advice-title{color:#5C9BFE;}
-  .advice-item.season{border-left-color:#2B4A9A;}
-  .advice-item.season .advice-title{color:#2B4A9A;}
   .chart-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;}
   .chart-controls .ctrl-group{display:flex;align-items:center;gap:6px;}
   .chart-controls label{font-size:13px;color:#666;}
@@ -563,13 +559,13 @@ REPORT_HTML_TEMPLATE = """
     </div>
     {% if next_items %}
     <div style="margin-top:16px;">
-      <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+      <div class="collapsible-header" onclick="toggleSection(this)">
         <div style="font-size:14px;color:#666;">近期节点（1个月内）</div>
         <span class="arrow">▼</span>
       </div>
-      <div class="collapsible-content collapsed">
+      <div class="collapsible-content">
       {% for item in next_items %}
-      <div class="next-item">
+      <div class="item-card">
         <div class="icon">{{ item.icon }}</div>
         <div class="info">
           <div class="name">{{ item.name }}</div>
@@ -582,15 +578,18 @@ REPORT_HTML_TEMPLATE = """
     </div>
     {% endif %}
     <div class="advice-section" style="margin-top:16px;">
-      <div class="collapsible-header collapsed" onclick="toggleSection(this)">
+      <div class="collapsible-header" onclick="toggleSection(this)">
         <h2 style="margin:0;font-size:18px;color:#2B4A9A;border-left:4px solid #FAD465;padding-left:12px;">喂养建议</h2>
         <span class="arrow">▼</span>
       </div>
-      <div class="collapsible-content collapsed">
+      <div class="collapsible-content">
         {% for a in advice_items %}
-        <div class="advice-item {{ a.type }}">
-          <div class="advice-title">{{ a.icon }} {{ a.title }}</div>
-          <div class="advice-text">{{ a.text }}</div>
+        <div class="item-card {{ a.type }}">
+          <div class="icon">{{ a.icon }}</div>
+          <div class="info">
+            <div class="name">{{ a.title }}</div>
+            <div class="date">{{ a.text }}</div>
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -598,35 +597,43 @@ REPORT_HTML_TEMPLATE = """
   </div>
 
   <div class="card">
-    <h2>身高生长曲线</h2>
+    <div class="collapsible-header" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #66D9D0;padding-left:12px;">身高生长曲线</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content">
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="heightRange" onchange="updateChart('height')">
-        <option value="auto">默认（近1年+后3月）</option>
-        <option value="0-60">0-60月（全部）</option>
-        <option value="0-24">0-24月</option>
-        <option value="0-36">0-36月</option>
+        <option value="auto" selected>默认（0-{{ chart_max_month }}月）</option>
         <option value="0-12">0-12月</option>
-        <option value="12-36">12-36月</option>
-        <option value="24-60">24-60月</option>
+        <option value="12-24">12-24月</option>
+        <option value="24-36">24-36月</option>
+        <option value="36-48">36-48月</option>
+        <option value="48-60">48-60月</option>
       </select></div>
     </div>
     <div class="chart-container"><canvas id="heightChart"></canvas></div>
+    </div>
   </div>
 
   <div class="card">
-    <h2>体重生长曲线</h2>
+    <div class="collapsible-header" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #66D9F5;padding-left:12px;">体重生长曲线</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content">
     <div class="chart-controls">
       <div class="ctrl-group"><label>区间</label><select id="weightRange" onchange="updateChart('weight')">
-        <option value="auto">默认（近1年+后3月）</option>
-        <option value="0-60">0-60月（全部）</option>
-        <option value="0-24">0-24月</option>
-        <option value="0-36">0-36月</option>
+        <option value="auto" selected>默认（0-{{ chart_max_month }}月）</option>
         <option value="0-12">0-12月</option>
-        <option value="12-36">12-36月</option>
-        <option value="24-60">24-60月</option>
+        <option value="12-24">12-24月</option>
+        <option value="24-36">24-36月</option>
+        <option value="36-48">36-48月</option>
+        <option value="48-60">48-60月</option>
       </select></div>
     </div>
     <div class="chart-container"><canvas id="weightChart"></canvas></div>
+    </div>
   </div>
 
   <div class="card">
@@ -776,11 +783,18 @@ function buildChart(ctxId,whoData,actual,range,yLabel){
         tooltip:{
           callbacks:{label:function(ctx){const v=ctx.parsed.y;return ctx.dataset.label+': '+v+(yLabel==='cm'?'cm':'kg');}},
           external:function(context){
-            if(tooltipTimer){clearTimeout(tooltipTimer);tooltipTimer=null;}
-            tooltipTimer=setTimeout(function(){
-              context.tooltip.opacity=0;
-              context.chart.update('none');
-            },3000);
+            const tip=context.tooltip;
+            if(tip.opacity===0){
+              if(tooltipTimer){clearTimeout(tooltipTimer);tooltipTimer=null;}
+              return;
+            }
+            if(!tooltipTimer){
+              tooltipTimer=setTimeout(function(){
+                tip.opacity=0;
+                context.chart.update('none');
+                tooltipTimer=null;
+              },3000);
+            }
           }
         }
       },
@@ -849,18 +863,41 @@ def _find_who_row(who_data, age_months):
 
 
 def _build_advice(age_months, season):
-    """根据月龄和季节生成喂养建议"""
+    """根据月龄和季节生成喂养建议（按周龄细分）"""
     advice = []
-    if age_months < 24:
-        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"保证每日奶量400-500ml，三餐两点心，食物切碎便于咀嚼。注意补充含铁食物如红肉、蛋黄。"})
+
+    # 按月龄分段，覆盖 0-60 月，重点细化 24-36 月（阿鲤当前 29 月龄）
+    if age_months < 6:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"纯母乳喂养，按需哺乳，每日8-12次；补充维生素D400IU/日。6月龄前一般不添加辅食，以奶为主。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日俯卧练习（Tummy Time）2-3次，每次几分钟；练习抓握、追视、听声辨位。户外活动逐步增加至1小时。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多与宝宝面对面说话、微笑，用黑白卡/彩色卡刺激视觉；模仿发声，为语言发展打基础。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"建立吃-玩-睡的规律作息；睡前固定流程（洗澡、抚触、哼歌）帮助养成睡眠习惯。"})
+    elif age_months < 12:
+        advice.append({"type":"diet","icon":"🍼","title":"饮食","text":"奶量600-800ml/日，辅食从含铁米糊开始，逐步引入蛋黄、肉泥、肝泥、蔬菜泥、水果泥。食物由稀到稠、由细到粗。新食材每次只加一种，观察2-3天防过敏。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1小时；练习独坐、匍匐、爬行，鼓励扶站。精细动作可玩撕纸、抓握小件。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多与宝宝对话、指物命名，鼓励发baba/mama音；读布书、触摸书，帮助认知常见物品。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"培养定时喂奶、辅食与睡眠的节律；鼓励宝宝自己抓握食物，为自主进食打基础。"})
+    elif age_months < 18:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"每日奶量600ml左右，三餐两点心；食物切成小丁，鼓励尝试块状。增加含铁红肉、动物肝脏、鱼类补充蛋白质和铁。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1-1.5小时；练习独立行走、扶着上台阶、蹲下站起。精细动作可练习搭积木、翻书。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多听儿歌童谣，鼓励模仿大人说话、说简单词；认识身体部位，练习把物品放进容器。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"学着自己用勺子吃饭（允许洒漏）；协助收拾玩具；开始如厕训练的意识培养（换尿布时预告）。"})
+    elif age_months < 24:
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"保证每日奶量400-500ml，三餐两点心，食物切碎便于咀嚼。注意补充含铁食物如红肉、蛋黄；逐渐过渡到家庭饮食。"})
         advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动至少1小时，鼓励跑跳、攀爬等大运动，同时练习串珠、翻书等精细动作。"})
         advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多读绘本、听儿歌，鼓励模仿说话和简单短语。认识常见物品名称，培养因果关系理解。"})
         advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"学习自己用勺子吃饭、协助收玩具。开始如厕训练，培养洗手等卫生习惯。"})
+    elif age_months < 30:
+        # 30月龄前：强化自主进食、精细动作
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"每日奶量350-400ml，三餐规律；食物种类多样化，蛋白质（鱼、肉、蛋）和新鲜蔬果每日都要有。控制零食与含糖饮料。建议开始学习使用筷子夹取大块食物，提升手口协调。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1-2小时，鼓励跑、跳、踢球、骑滑板车。本周重点：上下楼梯（扶着扶手）、单脚站立3秒以上，练习平衡。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"进行亲子阅读并鼓励复述简单故事。本周建议开始学习使用剪刀：从儿童安全剪刀剪纸、剪面开始，目标3岁前能熟练使用。同时练习颜色、形状分类和数数1-10。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"开始学习自己穿鞋、穿袜：先从容易穿脱的大开口鞋袜练起，学会区分左右；练习自己解扣子、拉拉链。鼓励帮忙做简单家务如收碗筷。"})
     elif age_months < 36:
-        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"每日奶量维持350-400ml，三餐规律，食物种类多样化。注意蛋白质（鱼、肉、蛋）和新鲜蔬果摄入，控制零食和含糖饮料。"})
-        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1-2小时，鼓励跑、跳、踢球、骑滑板车等。练习上下楼梯、单脚站立等平衡运动。"})
-        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多进行亲子阅读，鼓励复述简单故事。练习颜色、形状分类，数数1-10。涂鸦画画锻炼手眼协调。"})
-        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"练习自己穿脱简单衣物、洗手擦嘴。学习自己上厕所。鼓励帮忙做简单家务如收碗筷。培养固定作息时间。"})
+        advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"每日奶量维持350-400ml，三餐规律；食物种类多样化。注意蛋白质（鱼、肉、蛋）和新鲜蔬果摄入，控制零食和含糖饮料。可开始让宝宝参与简单的餐前准备，培养对食物的兴趣。"})
+        advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动1-2小时，鼓励跑、跳、踢球、骑滑板车等。练习上下楼梯、单脚站立等平衡运动。2岁半后可尝试儿童小三轮车。"})
+        advice.append({"type":"skill","icon":"📚","title":"技巧学习","text":"多进行亲子阅读，鼓励复述简单故事。练习颜色、形状分类，数数1-10。涂鸦画画锻炼手眼协调。若尚未熟练，抓紧练习使用安全剪刀剪纸，目标3岁前熟练。"})
+        advice.append({"type":"life","icon":"🌟","title":"生活技能","text":"练习自己穿脱简单衣物、扣扣子，自己穿鞋袜。学习自己上厕所。鼓励帮忙做简单家务如收碗筷、浇花。培养固定作息时间。"})
     else:
         advice.append({"type":"diet","icon":"🍽","title":"饮食","text":"三餐两点心制，保证均衡营养。培养良好就餐习惯，不挑食不偏食。适当增加粗粮和膳食纤维。"})
         advice.append({"type":"exercise","icon":"🏃","title":"运动","text":"每日户外活动2小时以上，鼓励跑跳攀爬、骑三轮车等。可开始尝试简单的游泳、球类运动。"})
@@ -939,6 +976,29 @@ def report():
         [60,12.4,13.3,16.5,18.8,20.7]
     ]
 
+    # WHO数据按整数月线性插值，确保任意显示区间内曲线完整
+    def _interp_who(rows, max_month=60):
+        """将WHO稀疏月龄点插值到0-max_month每个整数月"""
+        out = []
+        months = [r[0] for r in rows]
+        for m in range(0, max_month + 1):
+            if m in months:
+                out.append(list(rows[months.index(m)]))
+            else:
+                # 找到相邻上下界插值
+                hi = next((i for i, x in enumerate(months) if x > m), None)
+                lo = hi - 1 if hi is not None else len(months) - 1
+                if hi is None:
+                    out.append(list(rows[lo]))
+                    continue
+                r1, r2 = rows[lo], rows[hi]
+                t = (m - r1[0]) / (r2[0] - r1[0])
+                out.append([m] + [round(r1[i] + (r2[i] - r1[i]) * t, 1) for i in range(1, 6)])
+        return out
+
+    who_height = _interp_who(who_height)
+    who_weight = _interp_who(who_weight)
+
     actual_heights = [[g["age_months"], g["height_cm"]] for g in growth]
     actual_weights = [[g["age_months"], g["weight_kg"]] for g in growth]
 
@@ -965,8 +1025,8 @@ def report():
         height_growth_rate = 0
         weight_growth_rate = 0
 
-    # 图表默认区间：最新记录前1年后3月
-    chart_min_month = int(max(0, latest_age_months - 12))
+    # 图表默认区间：0月到当前月龄+3月（覆盖完整成长轨迹）
+    chart_min_month = 0
     chart_max_month = int(latest_age_months + 3)
 
     # 近期节点
