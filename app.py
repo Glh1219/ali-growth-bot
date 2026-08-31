@@ -16,7 +16,7 @@ import json
 import time
 import hashlib
 import xml.etree.ElementTree as ET
-from flask import Flask, request, abort, render_template_string, send_file
+from flask import Flask, request, abort, render_template_string, send_file, jsonify, Response
 from zhipuai import ZhipuAI
 
 app = Flask(__name__)
@@ -500,6 +500,132 @@ def report():
         actual_heights=json.dumps(actual_heights),
         actual_weights=json.dumps(actual_weights)
     )
+
+
+# ============ H5聊天页面 ============
+WEB_CHAT_HTML = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#667eea">
+<title>阿鲤成长助手</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;display:flex;flex-direction:column;height:100vh;}
+  .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  .header .avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .header .title-wrap{flex:1;min-width:0;}
+  .header .title{font-size:16px;font-weight:600;}
+  .header .subtitle{font-size:11px;opacity:.85;margin-top:2px;}
+  .header .report-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+  .header .report-btn:active{background:rgba(255,255,255,.35);}
+  .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 12px;display:flex;flex-direction:column;gap:12px;}
+  .msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.6;word-break:break-word;white-space:pre-wrap;animation:fadeIn .3s ease;}
+  .msg.user{align-self:flex-end;background:#667eea;color:#fff;border-bottom-right-radius:4px;}
+  .msg.bot{align-self:flex-start;background:#fff;color:#333;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .msg.bot a{color:#667eea;text-decoration:underline;}
+  .typing{align-self:flex-start;background:#fff;color:#999;padding:12px 16px;border-radius:16px;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#aaa;margin:0 1px;animation:blink 1.4s infinite both;}
+  .typing span:nth-child(2){animation-delay:.2s;}
+  .typing span:nth-child(3){animation-delay:.4s;}
+  .quick-tags{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;flex-shrink:0;background:#f0f0f0;}
+  .quick-tags .tag{background:#fff;border:1px solid #ddd;border-radius:18px;padding:6px 14px;font-size:13px;color:#555;cursor:pointer;white-space:nowrap;}
+  .quick-tags .tag:active{background:#667eea;color:#fff;border-color:#667eea;}
+  .input-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #e0e0e0;flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+  .input-bar input{flex:1;border:1px solid #e0e0e0;border-radius:22px;padding:10px 16px;font-size:16px;outline:none;background:#f8f8f8;}
+  .input-bar input:focus{border-color:#667eea;background:#fff;}
+  .input-bar button{width:40px;height:40px;border-radius:50%;border:none;background:#667eea;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .input-bar button:active{transform:scale(.92);}
+  .input-bar button:disabled{background:#ccc;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes blink{0%,80%,100%{opacity:.2;}40%{opacity:1;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="avatar">🐟</div>
+  <div class="title-wrap">
+    <div class="title">阿鲤成长助手</div>
+    <div class="subtitle">记录成长 · 科学育儿</div>
+  </div>
+  <button class="report-btn" onclick="window.open('/report','_blank')">📊 报告</button>
+</div>
+<div class="messages" id="messages">
+  <div class="msg bot">👋 你好！我是阿鲤的成长助手，可以帮你：
+    \n1. 记录身高体重，如发"87cm 12.5kg"
+    \n2. 记录就医/疫苗信息
+    \n3. 在线咨询育儿问题
+    \n4. 点击右上角"报告"查看成长曲线
+    \n\n有什么我可以帮你的？</div>
+</div>
+<div class="quick-tags" id="quickTags">
+  <span class="tag" onclick="sendQuick('帮助')">帮助</span>
+  <span class="tag" onclick="sendQuick('体检')">下次体检</span>
+  <span class="tag" onclick="sendQuick('疫苗')">疫苗</span>
+  <span class="tag" onclick="sendQuick('数据')">数据</span>
+</div>
+<div class="input-bar">
+  <input type="text" id="input" placeholder="输入消息..." onkeydown="if(event.key==='Enter')sendMsg()" maxlength="500">
+  <button onclick="sendMsg()" id="sendBtn">↑</button>
+</div>
+<script>
+let sending=false;
+function scrollBottom(){const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;}
+function appendMsg(text,isUser){const d=document.createElement('div');d.className='msg '+(isUser?'user':'bot');d.textContent=text;document.getElementById('messages').appendChild(d);scrollBottom();}
+function appendTyping(){const d=document.createElement('div');d.className='typing';d.id='typing';d.innerHTML='<span></span><span></span><span></span>';document.getElementById('messages').appendChild(d);scrollBottom();}
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+function sendQuick(text){document.getElementById('input').value=text;sendMsg();}
+async function sendMsg(){
+  if(sending)return;
+  const input=document.getElementById('input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  sending=true;
+  document.getElementById('sendBtn').disabled=true;
+  appendMsg(text,true);
+  appendTyping();
+  try{
+    const r=await fetch('/web/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+    const data=await r.json();
+    removeTyping();
+    appendMsg(data.reply,false);
+  }catch(e){
+    removeTyping();
+    appendMsg('网络异常，请稍后重试',false);
+  }
+  sending=false;
+  document.getElementById('sendBtn').disabled=false;
+  input.focus();
+}
+scrollBottom();
+</script>
+</body>
+</html>
+"""
+
+
+@app.route("/web")
+def web_chat():
+    """H5聊天页面"""
+    return render_template_string(WEB_CHAT_HTML)
+
+
+@app.route("/web/api", methods=["POST"])
+def web_api():
+    """H5聊天API接口"""
+    data = request.get_json()
+    if not data or "message" not in data:
+        return jsonify({"reply": "请输入有效消息"}), 400
+
+    message = data["message"]
+    reply = handle_text_message(message, "web_user")
+    return jsonify({"reply": reply})
 
 
 # ============ 健康检查 ============
