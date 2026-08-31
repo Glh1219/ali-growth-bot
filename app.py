@@ -139,18 +139,22 @@ def parse_growth_message(text):
     ]
     # 先尝试带日期格式：如 "2024.3.13 47 2.65" / "2024-03-13 47 2.65" / "3月13日 47 2.65"
     date_patterns = [
-        r'(\d{4})[.\-/年](\d{1,2})[.\-/月](\d{1,2})日?\s*(\d{2,3}(?:\.\d+)?)\s+(\d{1,2}(?:\.\d+)?)',
-        r'(\d{1,2})月(\d{1,2})日\s*(\d{2,3}(?:\.\d+)?)\s+(\d{1,2}(?:\.\d+)?)',
+        r'(?P<y>\d{4})[.\-/年](?P<m>\d{1,2})[.\-/月](?P<d>\d{1,2})日?\s*(?P<h>\d{2,3}(?:\.\d+)?)\s+(?P<w>\d{1,2}(?:\.\d+)?)',
+        r'(?P<m2>\d{1,2})月(?P<d2>\d{1,2})日\s*(?P<h2>\d{2,3}(?:\.\d+)?)\s+(?P<w2>\d{1,2}(?:\.\d+)?)',
     ]
     for dp in date_patterns:
         m = re.search(dp, text)
         if m:
-            height = float(m.group(-2))
-            weight = float(m.group(-1))
-            if 40 < height < 120 and 3 < weight < 30:
-                year = int(m.group(1))
-                month = int(m.group(2))
-                day = int(m.group(3))
+            gd = m.groupdict()
+            height = float(gd.get("h") or gd.get("h2"))
+            weight = float(gd.get("w") or gd.get("w2"))
+            if 40 < height < 120 and 1.5 < weight < 30:
+                if gd.get("y"):
+                    year = int(gd["y"])
+                else:
+                    year = int(time.strftime("%Y"))
+                month = int(gd.get("m") or gd.get("m2"))
+                day = int(gd.get("d") or gd.get("d2"))
                 date_str = "%04d-%02d-%02d" % (year, month, day)
                 return {"height_cm": height, "weight_kg": weight, "date": date_str}
     for pattern in patterns:
@@ -159,7 +163,7 @@ def parse_growth_message(text):
             height = float(m.group(1))
             weight = float(m.group(2))
             # 合理性检查
-            if 40 < height < 120 and 3 < weight < 30:
+            if 40 < height < 120 and 1.5 < weight < 30:
                 return {"height_cm": height, "weight_kg": weight}
     return None
 
