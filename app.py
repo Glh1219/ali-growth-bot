@@ -1841,8 +1841,8 @@ def web_chat_api():
     rec = load_data()
 
     # 清理超过1年的历史记录
-    from datetime import datetime as _dt
-    cutoff = (_dt.now() - _dt.timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
+    from datetime import datetime as _dt, timedelta as _td
+    cutoff = (_dt.now() - _td(days=365)).strftime("%Y-%m-%d %H:%M:%S")
     history = rec.get("chat_history", [])
     history = [h for h in history if h.get("time", "") >= cutoff]
     rec["chat_history"] = history
