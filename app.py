@@ -1549,15 +1549,27 @@ ADD_PAGE_HTML = """
   <p class="tip">提示：身高以0.5cm、体重以0.1kg为颗粒度，保存后可随时在成长趋势中查看。</p>
 </div>
 
-<!-- 访问码验证弹窗 -->
-<div class="picker-overlay show" id="authOverlay" style="align-items:center;z-index:200;">
-  <div style="background:#fff;width:85%;max-width:340px;border-radius:16px;padding:28px 24px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);">
-    <div style="font-size:40px;margin-bottom:8px;">🔒</div>
-    <h3 style="font-size:18px;color:#333;margin-bottom:6px;">需要访问码</h3>
-    <p style="font-size:13px;color:#888;margin-bottom:16px;">新增记录需输入访问码验证</p>
-    <input type="password" id="auth-code" placeholder="请输入访问码" style="width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:12px;font-size:16px;outline:none;text-align:center;box-sizing:border-box;" onkeydown="if(event.key==='Enter')checkAuth()">
-    <div id="auth-error" style="color:#e74c3c;font-size:13px;margin-top:8px;display:none;">访问码错误，无记录权限</div>
-    <button onclick="checkAuth()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;">进入</button>
+<!-- 访问码验证弹窗（独立样式，不依赖picker-overlay） -->
+<style>
+  #authOverlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;justify-content:center;align-items:center;}
+  #authOverlay .auth-box{background:#fff;width:85%;max-width:340px;border-radius:16px;padding:28px 24px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+  #authOverlay .auth-icon{font-size:40px;margin-bottom:8px;}
+  #authOverlay .auth-title{font-size:18px;color:#333;margin-bottom:6px;font-weight:600;}
+  #authOverlay .auth-sub{font-size:13px;color:#888;margin-bottom:16px;}
+  #authOverlay .auth-input{width:100%;border:2px solid #e0e0e0;border-radius:10px;padding:12px;font-size:18px;outline:none;text-align:center;box-sizing:border-box;letter-spacing:2px;}
+  #authOverlay .auth-input:focus{border-color:#667eea;}
+  #authOverlay .auth-err{color:#e74c3c;font-size:13px;margin-top:8px;display:none;}
+  #authOverlay .auth-btn{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;}
+  #authOverlay .auth-btn:active{transform:scale(.97);}
+</style>
+<div id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-icon">🔒</div>
+    <div class="auth-title">需要访问码</div>
+    <div class="auth-sub">新增记录需输入访问码验证</div>
+    <input type="password" class="auth-input" id="auth-code" placeholder="请输入访问码" autocomplete="off">
+    <div class="auth-err" id="auth-error">访问码错误，无记录权限</div>
+    <button type="button" class="auth-btn" id="auth-btn">进入</button>
   </div>
 </div>
 
@@ -1874,18 +1886,30 @@ function normalizeVaccine(raw){
 
 // ===== 访问码验证 =====
 function checkAuth(){
-  const code=document.getElementById('auth-code').value.trim();
+  var input=document.getElementById('auth-code');
+  var err=document.getElementById('auth-error');
+  if(!input){console.error('auth-code input not found');return;}
+  var code=input.value.trim();
   if(code==='20240313'){
-    document.getElementById('authOverlay').style.display='none';
+    var ov=document.getElementById('authOverlay');
+    if(ov)ov.style.display='none';
     sessionStorage.setItem('ali_add_auth','1');
   }else{
-    document.getElementById('auth-error').style.display='block';
-    document.getElementById('auth-code').value='';
+    if(err)err.style.display='block';
+    input.value='';
+    input.focus();
   }
 }
-(function(){
+// 绑定按钮和回车
+(function bindAuth(){
+  var btn=document.getElementById('auth-btn');
+  var input=document.getElementById('auth-code');
+  if(btn){btn.addEventListener('click',function(e){e.preventDefault();checkAuth();});}
+  if(input){input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();checkAuth();}});}
+  // 已验证过则隐藏
   if(sessionStorage.getItem('ali_add_auth')==='1'){
-    document.getElementById('authOverlay').style.display='none';
+    var ov=document.getElementById('authOverlay');
+    if(ov)ov.style.display='none';
   }
 })();
 
@@ -2067,6 +2091,7 @@ CHAT_PAGE_HTML = """
 <script>
 // 渲染喂养建议
 const adviceData = {{ advice_json|safe }};
+const historyData = {{ history_json|safe }};
 const adviceColors = {
   diet: { border: '#FAD465', text: '#B8860B' },
   sleep: { border: '#9990ED', text: '#7B68EE' },
@@ -2075,6 +2100,31 @@ const adviceColors = {
   life: { border: '#93C1FE', text: '#5C9BFE' },
   season: { border: '#2B4A9A', text: '#2B4A9A' }
 };
+
+// 加载历史对话记录
+(function loadHistory(){
+  const msgBox = document.getElementById('messages');
+  if (historyData && historyData.length > 0) {
+    // 历史记录分割条
+    const sep = document.createElement('div');
+    sep.style.cssText = 'text-align:center;color:#aaa;font-size:12px;margin:4px 0;padding:4px;';
+    sep.textContent = '── 历史记录 ──';
+    msgBox.appendChild(sep);
+    historyData.forEach(h => {
+      const d = document.createElement('div');
+      d.className = 'msg ' + (h.role === 'user' ? 'user' : 'bot');
+      d.textContent = h.content;
+      msgBox.appendChild(d);
+    });
+    // 新对话分割条
+    const sep2 = document.createElement('div');
+    sep2.style.cssText = 'text-align:center;color:#aaa;font-size:12px;margin:4px 0;padding:4px;';
+    sep2.textContent = '── 最新对话 ──';
+    msgBox.appendChild(sep2);
+  }
+})();
+
+// 渲染喂养建议
 (function renderAdvice(){
   const box = document.getElementById('advice-box');
   if (!box) return;
@@ -2146,10 +2196,12 @@ def web_chat_page():
         "冬季": f"当前{season}，寒冷需注意保暖但不宜过度包裹。室内开暖气需注意加湿通风。多喝温水，适当增加热量摄入。",
     }
     advice_items.append({"type":"season","icon":"🌡","title":f"季节建议（{season}）","text":season_advice_map[season]})
-    # 转为 JSON 供前端渲染
+    # 获取历史对话记录（保留一年）
+    history = data.get("chat_history", [])
     import json as _json
     advice_json = _json.dumps([{"type":a["type"],"icon":a["icon"],"title":a["title"],"text":a["text"]} for a in advice_items], ensure_ascii=False)
-    return render_template_string(CHAT_PAGE_HTML, advice_json=advice_json)
+    history_json = _json.dumps([{"role":h["role"],"content":h.get("content",""),"time":h.get("time","")} for h in history], ensure_ascii=False)
+    return render_template_string(CHAT_PAGE_HTML, advice_json=advice_json, history_json=history_json)
 
 
 @app.route("/web/chat/api", methods=["POST"])
