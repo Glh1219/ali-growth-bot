@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 阿鲤成长记录 - 微信公众号后端服务
 部署在 Render.com 上的 Flask 应用，处理微信消息、调用智谱AI生成回复。
@@ -1846,10 +1846,10 @@ function parseOcrText(text){
   const docm=text.match(/([\u4e00-\u9fa5]{2,4}(?:医生|医师|大夫))/);
   if(docm)info.doctor=docm[1];
   // 诊断：匹配 "诊断[:：]xxx" 或 "印象[:：]xxx"
-  const diagm=text.match(/(?:诊断|印象|初步诊断)[:：]?\s*([^\n，。;；]{2,30})/);
+  const diagm=text.match(/(?:诊断|印象|初步诊断)[:：]?\\s*([^\\n，。;；]{2,30})/);
   if(diagm)info.diagnosis=diagm[1];
   // 主要诉求：匹配 主诉/就诊原因 后内容
-  const cm=text.match(/(?:主诉|就诊原因|来诊原因)[:：]?\s*([^\n，。;；]{2,40})/);
+  const cm=text.match(/(?:主诉|就诊原因|来诊原因)[:：]?\\s*([^\\n，。;；]{2,40})/);
   if(cm)info.complaint=cm[1];
   return info;
 }
