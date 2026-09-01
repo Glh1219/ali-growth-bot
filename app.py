@@ -1734,7 +1734,7 @@ async function submitGrowth(){
   const btn=document.querySelector('#panel-growth .submit-btn');
   btn.disabled=true;
   try{
-    const r=await fetch('/web/api/growth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:selected.date,height:selected.height,weight:selected.weight,auth_code:'20240313'})});
+    const r=await fetch('/api/growth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:selected.date,height:selected.height,weight:selected.weight,auth_code:'20240313'})});
     const data=await r.json();
     if(data.ok){
       alert('已保存成长记录！');
