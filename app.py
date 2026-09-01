@@ -1399,6 +1399,7 @@ ADD_PAGE_HTML = """
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#667eea">
 <title>新增记录</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:40px;}
@@ -1418,6 +1419,8 @@ ADD_PAGE_HTML = """
   .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:15px;outline:none;background:#fafafa;font-family:inherit;}
   .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#667eea;background:#fff;}
   .form-group textarea{min-height:70px;resize:vertical;}
+  .mode-btn{flex:1;padding:10px;border:2px solid #e0e0e0;border-radius:10px;background:#fff;color:#666;font-size:14px;cursor:pointer;text-align:center;}
+  .mode-btn.active{border-color:#667eea;color:#667eea;background:#f5f6ff;font-weight:600;}
   .submit-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:16px;font-weight:600;cursor:pointer;}
   .submit-btn:active{transform:scale(.98);}
   .submit-btn:disabled{background:#ccc;}
@@ -1425,20 +1428,21 @@ ADD_PAGE_HTML = """
   /* 滑动选择器 */
   .picker-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;display:none;justify-content:center;align-items:flex-end;}
   .picker-overlay.show{display:flex;}
-  .picker{background:#fff;width:100%;max-width:600px;border-radius:16px 16px 0 0;padding:16px 0 calc(16px + env(safe-area-inset-bottom));}
+  .picker,.picker-box{background:#fff;width:100%;max-width:600px;border-radius:16px 16px 0 0;padding:16px 0 calc(16px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,.15);}
   .picker-header{display:flex;justify-content:space-between;align-items:center;padding:0 16px 12px;border-bottom:1px solid #eee;}
+  .picker-header .picker-toggle{font-size:13px;color:#667eea;padding:6px 10px;border:1px solid #667eea;border-radius:8px;background:#f5f6ff;cursor:pointer;margin-right:8px;}
   .picker-header .cancel{font-size:15px;color:#999;background:none;border:none;cursor:pointer;}
   .picker-header .confirm{font-size:15px;color:#667eea;font-weight:600;background:none;border:none;cursor:pointer;}
   .picker-body{display:flex;justify-content:center;position:relative;height:220px;overflow:hidden;}
   .picker-col{flex:1;text-align:center;position:relative;height:220px;overflow:hidden;}
   .picker-col .wheel{position:absolute;top:0;left:0;right:0;transition:transform .3s ease;}
-  .picker-col .wheel .item{height:44px;line-height:44px;font-size:17px;color:#333;}
+  .picker-col .wheel .item{height:44px;line-height:44px;font-size:17px;color:#333;background:transparent;}
   .picker-col .wheel .item.disabled{color:#ccc;}
   .picker-mask-top,.picker-mask-bottom{position:absolute;left:0;right:0;height:88px;pointer-events:none;z-index:2;}
   .picker-mask-top{top:0;background:linear-gradient(to bottom,#fff 0%,rgba(255,255,255,0) 100%);}
   .picker-mask-bottom{bottom:0;background:linear-gradient(to top,#fff 0%,rgba(255,255,255,0) 100%);}
-  .picker-selection{position:absolute;top:88px;left:10%;right:10%;height:44px;border-top:1px solid #667eea;border-bottom:1px solid #667eea;z-index:1;pointer-events:none;border-radius:0;}
-  .picker-col .item.selected{color:#667eea;font-weight:600;}
+  .picker-selection{position:absolute;top:88px;left:0;right:0;height:44px;border-top:2px solid #667eea;border-bottom:2px solid #667eea;z-index:1;pointer-events:none;border-radius:0;background:rgba(102,126,234,.08);}
+  .picker-col .item.selected{color:#667eea;font-weight:600;background:rgba(102,126,234,.12);border-radius:8px;}
   .growth-preview{margin-bottom:14px;padding:12px 16px;background:#f5f6ff;border-radius:10px;font-size:14px;color:#4d5ec0;text-align:center;}
 </style>
 </head>
@@ -1481,15 +1485,35 @@ ADD_PAGE_HTML = """
   <div class="panel" id="panel-medical">
     <div class="card">
       <h3>就医记录</h3>
-      <div class="form-group"><label>就诊日期</label><input type="date" id="med-date"></div>
-      <div class="form-group"><label>医院名称</label><input type="text" id="med-hospital" placeholder="如：福建省儿童医院"></div>
-      <div class="form-group"><label>科室</label><input type="text" id="med-dept" placeholder="如：儿科门诊"></div>
-      <div class="form-group"><label>医生</label><input type="text" id="med-doctor" placeholder="如：张医生"></div>
-      <div class="form-group"><label>主要诉求</label><textarea id="med-complaint" placeholder="简要描述就诊原因"></textarea></div>
-      <div class="form-group"><label>诊断（可选）</label><input type="text" id="med-diagnosis" placeholder="如：上呼吸道感染"></div>
-      <div class="form-group"><label>检查内容（可选）</label><textarea id="med-exam" placeholder="如：血常规、B超等"></textarea></div>
-      <div class="form-group"><label>医生建议（可选）</label><textarea id="med-advice" placeholder="医生的建议或注意事项"></textarea></div>
-      <div class="form-group"><label>用药情况（可选）</label><textarea id="med-medication" placeholder="如：头孢克洛 3天"></textarea></div>
+      <div class="mode-toggle" style="display:flex;gap:8px;margin-bottom:14px;">
+        <button type="button" class="mode-btn active" id="med-mode-manual" onclick="switchMedMode('manual')">📝 人工记录</button>
+        <button type="button" class="mode-btn" id="med-mode-photo" onclick="switchMedMode('photo')">📷 拍照记录</button>
+      </div>
+      <!-- 拍照模式 -->
+      <div id="med-photo-box" style="display:none;">
+        <div class="form-group">
+          <label>上传就诊单据/病历照片</label>
+          <input type="file" id="med-photo-input" accept="image/*" capture="environment" onchange="handleMedPhoto(this)">
+        </div>
+        <div id="med-photo-preview" style="display:none;margin-bottom:10px;">
+          <img id="med-photo-img" style="width:100%;border-radius:10px;border:1px solid #eee;">
+        </div>
+        <div id="med-ocr-status" class="tip" style="margin-bottom:10px;">上传照片后将自动识别就诊信息</div>
+        <button class="submit-btn" style="background:#5b6cb8;" onclick="runMedOcr()">识别照片信息</button>
+        <div style="margin-top:10px;font-size:12px;color:#999;line-height:1.6;">识别结果会填入下方表单，请核对修改后再保存</div>
+      </div>
+      <!-- 人工模式 -->
+      <div id="med-manual-box">
+        <div class="form-group"><label>就诊日期</label><input type="date" id="med-date"></div>
+        <div class="form-group"><label>医院名称</label><input type="text" id="med-hospital" placeholder="如：福建省儿童医院"></div>
+        <div class="form-group"><label>科室</label><input type="text" id="med-dept" placeholder="如：儿科门诊"></div>
+        <div class="form-group"><label>医生</label><input type="text" id="med-doctor" placeholder="如：张医生"></div>
+        <div class="form-group"><label>主要诉求</label><textarea id="med-complaint" placeholder="简要描述就诊原因"></textarea></div>
+        <div class="form-group"><label>诊断（可选）</label><input type="text" id="med-diagnosis" placeholder="如：上呼吸道感染"></div>
+        <div class="form-group"><label>检查内容（可选）</label><textarea id="med-exam" placeholder="如：血常规、B超等"></textarea></div>
+        <div class="form-group"><label>医生建议（可选）</label><textarea id="med-advice" placeholder="医生的建议或注意事项"></textarea></div>
+        <div class="form-group"><label>用药情况（可选）</label><textarea id="med-medication" placeholder="如：头孢克洛 3天"></textarea></div>
+      </div>
       <button class="submit-btn" onclick="submitMed()">保存就医记录</button>
     </div>
   </div>
@@ -1499,12 +1523,46 @@ ADD_PAGE_HTML = """
     <div class="card">
       <h3>疫苗记录</h3>
       <div class="form-group"><label>接种日期</label><input type="date" id="vac-date"></div>
-      <div class="form-group"><label>疫苗名称</label><input type="text" id="vac-name" placeholder="如：流感疫苗"></div>
+      <div class="form-group"><label>疫苗名称（输入关键字选择标准名称）</label><input type="text" id="vac-name" list="vaccine-list" placeholder="如：五联、麻腮风"></div>
+      <datalist id="vaccine-list">
+        <option value="乙肝疫苗"></option>
+        <option value="卡介苗"></option>
+        <option value="脊灰灭活疫苗(IPV)"></option>
+        <option value="脊灰减毒活疫苗(OPV)"></option>
+        <option value="百白破疫苗"></option>
+        <option value="百白破IPV和Hib五联疫苗"></option>
+        <option value="麻腮风疫苗"></option>
+        <option value="麻风腮疫苗(MMR)"></option>
+        <option value="甲肝减毒活疫苗"></option>
+        <option value="乙脑减毒活疫苗"></option>
+        <option value="A群流脑疫苗"></option>
+        <option value="A+C群流脑多糖疫苗"></option>
+        <option value="13价肺炎疫苗"></option>
+        <option value="23价肺炎疫苗"></option>
+        <option value="轮状病毒疫苗"></option>
+        <option value="EV71手足口疫苗"></option>
+        <option value="水痘疫苗"></option>
+        <option value="流感疫苗"></option>
+        <option value="白破疫苗"></option>
+        <option value="HPV疫苗"></option>
+      </datalist>
       <div class="form-group"><label>针剂数</label><input type="text" id="vac-dose" placeholder="如：1/2、2/2"></div>
       <button class="submit-btn" onclick="submitVac()">保存疫苗记录</button>
     </div>
   </div>
   <p class="tip">提示：身高以0.5cm、体重以0.1kg为颗粒度，保存后可随时在成长趋势中查看。</p>
+</div>
+
+<!-- 访问码验证弹窗 -->
+<div class="picker-overlay show" id="authOverlay" style="align-items:center;z-index:200;">
+  <div style="background:#fff;width:85%;max-width:340px;border-radius:16px;padding:28px 24px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:40px;margin-bottom:8px;">🔒</div>
+    <h3 style="font-size:18px;color:#333;margin-bottom:6px;">需要访问码</h3>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;">新增记录需输入访问码验证</p>
+    <input type="password" id="auth-code" placeholder="请输入访问码" style="width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:12px;font-size:16px;outline:none;text-align:center;box-sizing:border-box;">
+    <div id="auth-error" style="color:#e74c3c;font-size:13px;margin-top:8px;display:none;">访问码错误，请重试</div>
+    <button onclick="checkAuth()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;">进入</button>
+  </div>
 </div>
 
 <!-- 滑动选择器 -->
@@ -1676,7 +1734,7 @@ async function submitGrowth(){
   const btn=document.querySelector('#panel-growth .submit-btn');
   btn.disabled=true;
   try{
-    const r=await fetch('/web/api/growth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:selected.date,height:selected.height,weight:selected.weight})});
+    const r=await fetch('/web/api/growth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:selected.date,height:selected.height,weight:selected.weight,auth_code:'20240313'})});
     const data=await r.json();
     if(data.ok){
       alert('已保存成长记录！');
@@ -1697,6 +1755,131 @@ function switchTab(t){
     document.getElementById('panel-'+x).classList.toggle('active',x===t);
   });
 }
+
+// ===== 就医记录：人工/拍照模式切换 =====
+let medPhotoData=null;
+function switchMedMode(mode){
+  const manualBtn=document.getElementById('med-mode-manual');
+  const photoBtn=document.getElementById('med-mode-photo');
+  if(mode==='photo'){
+    manualBtn.classList.remove('active');photoBtn.classList.add('active');
+    document.getElementById('med-manual-box').style.display='none';
+    document.getElementById('med-photo-box').style.display='block';
+  }else{
+    photoBtn.classList.remove('active');manualBtn.classList.add('active');
+    document.getElementById('med-photo-box').style.display='none';
+    document.getElementById('med-manual-box').style.display='block';
+  }
+}
+function handleMedPhoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  medImageData=null;
+  document.getElementById('med-ocr-status').textContent='照片已选择，点击"识别照片信息"开始识别';
+  const img=document.getElementById('med-photo-img');
+  img.src=URL.createObjectURL(file);
+  document.getElementById('med-photo-preview').style.display='block';
+}
+// OCR：使用 Tesseract.js 纯前端识别（无需外部服务密钥）
+async function runMedOcr(){
+  const input=document.getElementById('med-photo-input');
+  if(!input.files[0]){alert('请先选择照片');return;}
+  const status=document.getElementById('med-ocr-status');
+  status.textContent='正在识别照片（首次加载识别引擎较慢）…';
+  const btn=document.querySelector('#med-photo-box .submit-btn');
+  btn.disabled=true;
+  try{
+    const worker=await Tesseract.createWorker('chi_sim');
+    const ret=await worker.recognize(input.files[0]);
+    const text=ret.data.text;
+    await worker.terminate();
+    status.textContent='识别完成，请核对下方表单';
+    const info=parseOcrText(text);
+    if(info.date)document.getElementById('med-date').value=info.date;
+    if(info.hospital)document.getElementById('med-hospital').value=info.hospital;
+    if(info.dept)document.getElementById('med-dept').value=info.dept;
+    if(info.doctor)document.getElementById('med-doctor').value=info.doctor;
+    if(info.complaint)document.getElementById('med-complaint').value=info.complaint;
+    if(info.diagnosis)document.getElementById('med-diagnosis').value=info.diagnosis;
+    // 自动切换到人工模式展示识别结果
+    switchMedMode('manual');
+    alert('已识别照片信息并填入表单，请核对修改后保存');
+  }catch(e){
+    status.textContent='识别失败：'+e.message;
+    alert('识别失败，请手动记录');
+  }
+  btn.disabled=false;
+}
+function parseOcrText(text){
+  const info={};
+  // 日期（支持 2024-03-13 / 2024年3月13日 / 2024.3.13）
+  const dm=text.match(/(20\d{2})[年.\/-](\d{1,2})[月.\/-](\d{1,2})/);
+  if(dm)info.date=dm[1]+'-'+String(dm[2]).padStart(2,'0')+'-'+String(dm[3]).padStart(2,'0');
+  // 医院（以 医院/门诊/中心 结尾的连续中文）
+  const hm=text.match(/([\u4e00-\u9fa5]{2,}(?:医院|门诊部|门诊|中心|卫生院|诊所))/);
+  if(hm)info.hospital=hm[1];
+  // 科室（XX科）
+  const dm2=text.match(/([\u4e00-\u9fa5]{2,6}科(?:室|门诊)?)/);
+  if(dm2)info.dept=dm2[1];
+  // 医生（XX医生/XX医师/姓+医）
+  const docm=text.match(/([\u4e00-\u9fa5]{2,4}(?:医生|医师|大夫))/);
+  if(docm)info.doctor=docm[1];
+  // 诊断：匹配 "诊断[:：]xxx" 或 "印象[:：]xxx"
+  const diagm=text.match(/(?:诊断|印象|初步诊断)[:：]?\s*([^\n，。;；]{2,30})/);
+  if(diagm)info.diagnosis=diagm[1];
+  // 主要诉求：匹配 主诉/就诊原因 后内容
+  const cm=text.match(/(?:主诉|就诊原因|来诊原因)[:：]?\s*([^\n，。;；]{2,40})/);
+  if(cm)info.complaint=cm[1];
+  return info;
+}
+
+// ===== 疫苗名称标准校验 =====
+const STANDARD_VACCINES=[
+  '乙肝疫苗','卡介苗','脊灰灭活疫苗(IPV)','脊灰减毒活疫苗(OPV)','百白破疫苗',
+  '百白破IPV和Hib五联疫苗','麻腮风疫苗','麻风腮疫苗(MMR)','甲肝减毒活疫苗','乙脑减毒活疫苗',
+  'A群流脑疫苗','A+C群流脑多糖疫苗','13价肺炎疫苗','23价肺炎疫苗','轮状病毒疫苗',
+  'EV71手足口疫苗','水痘疫苗','流感疫苗','白破疫苗','HPV疫苗'
+];
+// 常见别名→标准名映射
+const VACCINE_ALIASES={
+  '五联':'百白破IPV和Hib五联疫苗','五联疫苗':'百白破IPV和Hib五联疫苗','四联':'百白破疫苗','百白破':'百白破疫苗',
+  '麻风腮':'麻风腮疫苗(MMR)','麻腮风':'麻腮风疫苗','mmr':'麻风腮疫苗(MMR)','MMR':'麻风腮疫苗(MMR)',
+  '乙肝':'乙肝疫苗','卡介':'卡介苗','脊灰':'脊灰灭活疫苗(IPV)','IPV':'脊灰灭活疫苗(IPV)',
+  '甲肝':'甲肝减毒活疫苗','乙脑':'乙脑减毒活疫苗','流脑':'A群流脑疫苗','ac流脑':'A+C群流脑多糖疫苗',
+  '13价':'13价肺炎疫苗','肺炎':'13价肺炎疫苗','轮状':'轮状病毒疫苗','手足口':'EV71手足口疫苗',
+  '水痘':'水痘疫苗','流感':'流感疫苗','白破':'白破疫苗','hpv':'HPV疫苗','HPV':'HPV疫苗'
+};
+function normalizeVaccine(raw){
+  const name=(raw||'').trim();
+  if(!name)return {ok:false,error:'请输入疫苗名称'};
+  // 精确匹配标准名
+  if(STANDARD_VACCINES.includes(name))return {ok:true,name};
+  // 别名映射
+  if(VACCINE_ALIASES[name])return {ok:true,name:VACCINE_ALIASES[name]};
+  // 模糊匹配：标准名包含输入 或 输入包含标准名
+  const found=STANDARD_VACCINES.filter(v=>v.includes(name)||name.includes(v));
+  if(found.length===1)return {ok:true,name:found[0]};
+  if(found.length>1)return {ok:false,error:'名称不明确，请从下拉列表选择：'+found.join('、')};
+  return {ok:false,error:'未找到匹配的标准疫苗名称，请从下拉列表选择'};
+}
+
+// ===== 访问码验证 =====
+function checkAuth(){
+  const code=document.getElementById('auth-code').value.trim();
+  if(code==='20240313'){
+    document.getElementById('authOverlay').style.display='none';
+    sessionStorage.setItem('ali_add_auth','1');
+  }else{
+    document.getElementById('auth-error').style.display='block';
+    document.getElementById('auth-code').value='';
+  }
+}
+(function(){
+  if(sessionStorage.getItem('ali_add_auth')==='1'){
+    document.getElementById('authOverlay').style.display='none';
+  }
+})();
+
 function today(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 document.getElementById('med-date').value=today();
 document.getElementById('vac-date').value=today();
@@ -1712,7 +1895,8 @@ async function submitMed(){
     diagnosis:document.getElementById('med-diagnosis').value,
     exam:document.getElementById('med-exam').value,
     advice:document.getElementById('med-advice').value,
-    medication:document.getElementById('med-medication').value
+    medication:document.getElementById('med-medication').value,
+    auth_code:'20240313'
   };
   const r=await fetch('/api/med',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const data=await r.json();
@@ -1720,11 +1904,15 @@ async function submitMed(){
   else{alert('保存失败：'+data.error);}
 }
 async function submitVac(){
+  const rawName=document.getElementById('vac-name').value;
+  const check=normalizeVaccine(rawName);
+  if(!check.ok){alert(check.error);return;}
   const payload={
     type:'vaccine',
     date:document.getElementById('vac-date').value,
-    vaccine:document.getElementById('vac-name').value,
-    dose:document.getElementById('vac-dose').value
+    vaccine:check.name,
+    dose:document.getElementById('vac-dose').value,
+    auth_code:'20240313'
   };
   const r=await fetch('/api/med',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const data=await r.json();
@@ -1750,6 +1938,9 @@ def api_growth():
     data = request.get_json()
     if not data:
         return jsonify({"ok": False, "error": "无效请求"}), 400
+    # 访问码校验
+    if data.get("auth_code") != "20240313":
+        return jsonify({"ok": False, "error": "访问码错误"}), 403
     try:
         date = data.get("date")
         height = float(data.get("height"))
@@ -1779,6 +1970,9 @@ def api_med():
     data = request.get_json()
     if not data:
         return jsonify({"ok": False, "error": "无效请求"}), 400
+    # 访问码校验
+    if data.get("auth_code") != "20240313":
+        return jsonify({"ok": False, "error": "访问码错误"}), 403
     try:
         rec = load_data()
         if data.get("type") == "medical":
