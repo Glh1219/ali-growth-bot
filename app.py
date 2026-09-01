@@ -559,43 +559,6 @@ REPORT_HTML_TEMPLATE = """
         </div>
       </div>
     </div>
-    {% if next_items %}
-    <div style="margin-top:16px;">
-      <div class="collapsible-header" onclick="toggleSection(this)">
-        <div style="font-size:14px;color:#666;">近期节点（1个月内）</div>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="collapsible-content">
-      {% for item in next_items %}
-      <div class="item-card">
-        <div class="icon">{{ item.icon }}</div>
-        <div class="info">
-          <div class="name">{{ item.name }}</div>
-          <div class="date">{{ item.date }}</div>
-        </div>
-        <div class="countdown">{{ item.countdown }}</div>
-      </div>
-      {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-    <div class="advice-section" style="margin-top:16px;">
-      <div class="collapsible-header" onclick="toggleSection(this)">
-        <h2 style="margin:0;font-size:18px;color:#2B4A9A;border-left:4px solid #FAD465;padding-left:12px;">喂养建议</h2>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="collapsible-content">
-        {% for a in advice_items %}
-        <div class="item-card {{ a.type }}">
-          <div class="icon">{{ a.icon }}</div>
-          <div class="info">
-            <div class="name">{{ a.title }}</div>
-            <div class="date">{{ a.text }}</div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
   </div>
 
   <div class="card">
@@ -653,6 +616,27 @@ REPORT_HTML_TEMPLATE = """
       </tbody></table>
     </div>
   </div>
+
+  {% if next_items %}
+  <div class="card">
+    <div class="collapsible-header" onclick="toggleSection(this)">
+      <h2 style="border-left:4px solid #9990ED;padding-left:12px;">近期节点（1个月内）</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="collapsible-content">
+    {% for item in next_items %}
+    <div class="item-card">
+      <div class="icon">{{ item.icon }}</div>
+      <div class="info">
+        <div class="name">{{ item.name }}</div>
+        <div class="date">{{ item.date }}</div>
+      </div>
+      <div class="countdown">{{ item.countdown }}</div>
+    </div>
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 <script>
 const allWhoHeight={{ who_height|safe }};
@@ -1060,7 +1044,6 @@ def report():
         weight_growth_rate=weight_growth_rate,
         growth_rate_months=growth_rate_months,
         next_items=next_items,
-        advice_items=advice_items,
         chart_min_month=chart_min_month,
         chart_max_month=chart_max_month,
         recent_min_month=recent_min_month,
@@ -1140,6 +1123,11 @@ WEB_CHAT_HTML = """
       <div class="e-arrow">›</div>
     </a>
   </div>
+  {% if days_since > 30 %}
+  <div style="margin-top:16px;padding:12px 16px;background:#FFF0F0;border:1px solid #FFCDD2;border-radius:12px;text-align:center;">
+    <span style="color:#D32F2F;font-size:14px;font-weight:600;">⚠️ 已{{ days_since }}天未记录成长数据，请及时测量身高体重并记录</span>
+  </div>
+  {% endif %}
 </div>
 </body>
 </html>
@@ -1148,7 +1136,16 @@ WEB_CHAT_HTML = """
 @app.route("/web")
 def web_chat():
     """H5聊天页面"""
-    return render_template_string(WEB_CHAT_HTML)
+    # 检查成长记录是否超过1个月未更新
+    data = load_data()
+    growth = data.get("growth_records", [])
+    days_since = 0
+    if growth:
+        last_date = growth[-1]["date"]
+        from datetime import datetime as _dt
+        last_dt = _dt.strptime(last_date, "%Y-%m-%d")
+        days_since = (_dt.now() - last_dt).days
+    return render_template_string(WEB_CHAT_HTML, days_since=days_since)
 
 
 @app.route("/web/api", methods=["POST"])
@@ -1399,7 +1396,6 @@ ADD_PAGE_HTML = """
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#667eea">
 <title>新增记录</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;min-height:100vh;padding-bottom:40px;}
@@ -1559,8 +1555,8 @@ ADD_PAGE_HTML = """
     <div style="font-size:40px;margin-bottom:8px;">🔒</div>
     <h3 style="font-size:18px;color:#333;margin-bottom:6px;">需要访问码</h3>
     <p style="font-size:13px;color:#888;margin-bottom:16px;">新增记录需输入访问码验证</p>
-    <input type="password" id="auth-code" placeholder="请输入访问码" style="width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:12px;font-size:16px;outline:none;text-align:center;box-sizing:border-box;">
-    <div id="auth-error" style="color:#e74c3c;font-size:13px;margin-top:8px;display:none;">访问码错误，请重试</div>
+    <input type="password" id="auth-code" placeholder="请输入访问码" style="width:100%;border:1px solid #e0e0e0;border-radius:10px;padding:12px;font-size:16px;outline:none;text-align:center;box-sizing:border-box;" onkeydown="if(event.key==='Enter')checkAuth()">
+    <div id="auth-error" style="color:#e74c3c;font-size:13px;margin-top:8px;display:none;">访问码错误，无记录权限</div>
     <button onclick="checkAuth()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;">进入</button>
   </div>
 </div>
@@ -1780,15 +1776,28 @@ function handleMedPhoto(input){
   img.src=URL.createObjectURL(file);
   document.getElementById('med-photo-preview').style.display='block';
 }
-// OCR：使用 Tesseract.js 纯前端识别（无需外部服务密钥）
+// OCR：按需动态加载 Tesseract.js（不阻塞页面其他JS）
+let tesseractLoaded = false;
+function loadTesseract(){
+  return new Promise((resolve, reject) => {
+    if (tesseractLoaded && window.Tesseract) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = () => { tesseractLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('OCR引擎加载失败，请检查网络'));
+    document.head.appendChild(s);
+  });
+}
 async function runMedOcr(){
   const input=document.getElementById('med-photo-input');
   if(!input.files[0]){alert('请先选择照片');return;}
   const status=document.getElementById('med-ocr-status');
-  status.textContent='正在识别照片（首次加载识别引擎较慢）…';
+  status.textContent='正在加载识别引擎…';
   const btn=document.querySelector('#med-photo-box .submit-btn');
   btn.disabled=true;
   try{
+    await loadTesseract();
+    status.textContent='正在识别照片（首次较慢）…';
     const worker=await Tesseract.createWorker('chi_sim');
     const ret=await worker.recognize(input.files[0]);
     const text=ret.data.text;
@@ -2048,13 +2057,39 @@ CHAT_PAGE_HTML = """
   <div class="title">💬 养育咨询</div>
 </div>
 <div class="messages" id="messages">
-  <div class="msg bot">你好，我是阿鲤的养育助手。关于喂养、睡眠、发育、疫苗接种等问题都可以问我～</div>
+  <div class="msg bot">你好，我是阿鲤的养育助手。以下是当前的喂养建议，关于喂养、睡眠、发育、疫苗接种等问题都可以问我～</div>
+  <div class="msg bot" id="advice-box" style="max-width:92%;white-space:normal;"></div>
 </div>
 <div class="input-bar">
   <input type="text" id="input" placeholder="输入养育问题..." onkeydown="if(event.key==='Enter')sendMsg()" maxlength="500">
   <button onclick="sendMsg()" id="sendBtn">↑</button>
 </div>
 <script>
+// 渲染喂养建议
+const adviceData = {{ advice_json|safe }};
+const adviceColors = {
+  diet: { border: '#FAD465', text: '#B8860B' },
+  sleep: { border: '#9990ED', text: '#7B68EE' },
+  exercise: { border: '#66D9D0', text: '#26A69A' },
+  skill: { border: '#F86C5B', text: '#E53935' },
+  life: { border: '#93C1FE', text: '#5C9BFE' },
+  season: { border: '#2B4A9A', text: '#2B4A9A' }
+};
+(function renderAdvice(){
+  const box = document.getElementById('advice-box');
+  if (!box) return;
+  let html = '<div style="font-weight:600;font-size:14px;margin-bottom:8px;color:#667eea;">📋 当前喂养建议</div>';
+  adviceData.forEach(a => {
+    const c = adviceColors[a.type] || { border: '#ddd', text: '#333' };
+    html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;margin:6px 0;background:#f9f9ff;border-radius:8px;border-left:3px solid '+c.border+';">'
+      + '<span style="font-size:18px;flex-shrink:0;">'+a.icon+'</span>'
+      + '<div style="flex:1;"><div style="font-weight:600;font-size:13px;color:'+c.text+';">'+a.title+'</div>'
+      + '<div style="font-size:12px;color:#666;margin-top:2px;line-height:1.5;">'+a.text+'</div></div>'
+      + '</div>';
+  });
+  box.innerHTML = html;
+})();
+
 let sending=false;
 function scrollBottom(){const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;}
 function appendMsg(text,isUser){const d=document.createElement('div');d.className='msg '+(isUser?'user':'bot');d.textContent=text;document.getElementById('messages').appendChild(d);scrollBottom();}
@@ -2091,8 +2126,30 @@ scrollBottom();
 
 @app.route("/web/chat")
 def web_chat_page():
-    """养育咨询对话框页面"""
-    return render_template_string(CHAT_PAGE_HTML)
+    """养育咨询对话框页面 — 进入时先展示喂养建议"""
+    from datetime import datetime as _dt
+    data = load_data()
+    birth_date = data["child"]["birth_date"]
+    birth = _dt.strptime(birth_date, "%Y-%m-%d")
+    now = _dt.now()
+    age_months = round((now - birth).days / 30.44, 1)
+    month = now.month
+    if month in [3,4,5]: season = "春季"
+    elif month in [6,7,8]: season = "夏季"
+    elif month in [9,10,11]: season = "秋季"
+    else: season = "冬季"
+    advice_items = _build_advice(age_months, season)
+    season_advice_map = {
+        "春季": f"当前{season}，气温回暖但早晚温差大，注意春捂适时增减衣物。花粉季注意过敏，外出可戴口罩。多晒太阳补充维生素D。",
+        "夏季": f"当前{season}，炎热需防中暑，避免正午暴晒。饮食清淡，多喝水防脱水。空调温度建议26-28度，注意蚊虫防护。",
+        "秋季": f"当前{season}，干燥需多补充水分和润肺食物如梨、百合。早晚凉需适时添衣。是接种流感疫苗的好时机。",
+        "冬季": f"当前{season}，寒冷需注意保暖但不宜过度包裹。室内开暖气需注意加湿通风。多喝温水，适当增加热量摄入。",
+    }
+    advice_items.append({"type":"season","icon":"🌡","title":f"季节建议（{season}）","text":season_advice_map[season]})
+    # 转为 JSON 供前端渲染
+    import json as _json
+    advice_json = _json.dumps([{"type":a["type"],"icon":a["icon"],"title":a["title"],"text":a["text"]} for a in advice_items], ensure_ascii=False)
+    return render_template_string(CHAT_PAGE_HTML, advice_json=advice_json)
 
 
 @app.route("/web/chat/api", methods=["POST"])
