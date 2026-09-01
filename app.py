@@ -1519,29 +1519,8 @@ ADD_PAGE_HTML = """
     <div class="card">
       <h3>疫苗记录</h3>
       <div class="form-group"><label>接种日期</label><input type="date" id="vac-date"></div>
-      <div class="form-group"><label>疫苗名称（输入关键字选择标准名称）</label><input type="text" id="vac-name" list="vaccine-list" placeholder="如：五联、麻腮风"></div>
-      <datalist id="vaccine-list">
-        <option value="乙肝疫苗"></option>
-        <option value="卡介苗"></option>
-        <option value="脊灰灭活疫苗(IPV)"></option>
-        <option value="脊灰减毒活疫苗(OPV)"></option>
-        <option value="百白破疫苗"></option>
-        <option value="百白破IPV和Hib五联疫苗"></option>
-        <option value="麻腮风疫苗"></option>
-        <option value="麻风腮疫苗(MMR)"></option>
-        <option value="甲肝减毒活疫苗"></option>
-        <option value="乙脑减毒活疫苗"></option>
-        <option value="A群流脑疫苗"></option>
-        <option value="A+C群流脑多糖疫苗"></option>
-        <option value="13价肺炎疫苗"></option>
-        <option value="23价肺炎疫苗"></option>
-        <option value="轮状病毒疫苗"></option>
-        <option value="EV71手足口疫苗"></option>
-        <option value="水痘疫苗"></option>
-        <option value="流感疫苗"></option>
-        <option value="白破疫苗"></option>
-        <option value="HPV疫苗"></option>
-      </datalist>
+      <div class="form-group"><label>疫苗名称（点击选择）</label><div class="picker-trigger" onclick="openPicker('vaccine')" style="border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:15px;background:#fafafa;cursor:pointer;" id="vac-trigger">选择疫苗</div></div>
+      <div class="form-group" id="vac-custom-group" style="display:none;"><label>自定义疫苗名称</label><input type="text" id="vac-custom" placeholder="请输入疫苗名称"></div>
       <div class="form-group"><label>针剂数</label><input type="text" id="vac-dose" placeholder="如：1/2、2/2"></div>
       <button class="submit-btn" onclick="submitVac()">保存疫苗记录</button>
     </div>
@@ -1597,7 +1576,7 @@ ADD_PAGE_HTML = """
 let pickerType='date';
 let pickerItems=[];
 let pickerIndex=0;
-let selected={date:null,height:null,weight:null};
+let selected={date:null,height:null,weight:null,vaccine:null};
 let isTouch=false,startY=0,currentOffset=0,startOffset=0;
 
 const ITEM_H=44;
@@ -1634,17 +1613,23 @@ function buildWeights(){
   return items;
 }
 
+function buildVaccines(){
+  return STANDARD_VACCINES.concat(['其他']);
+}
+
 function openPicker(type){
   pickerType=type;
   const pTitle=document.getElementById('pickerTitle');
   if(type==='date'){pickerItems=buildDates();pTitle.textContent='选择日期';}
   else if(type==='height'){pickerItems=buildHeights();pTitle.textContent='选择身高';}
-  else{pickerItems=buildWeights();pTitle.textContent='选择体重';}
+  else if(type==='weight'){pickerItems=buildWeights();pTitle.textContent='选择体重';}
+  else if(type==='vaccine'){pickerItems=buildVaccines();pTitle.textContent='选择疫苗';}
   // 定位当前值
   let curIdx=Math.floor(pickerItems.length/2);
   if(type==='date'&&selected.date){curIdx=pickerItems.indexOf(selected.date);}
   else if(type==='height'&&selected.height){curIdx=pickerItems.indexOf(selected.height+'cm');}
   else if(type==='weight'&&selected.weight){curIdx=pickerItems.indexOf(selected.weight+'kg');}
+  else if(type==='vaccine'&&selected.vaccine){curIdx=pickerItems.indexOf(selected.vaccine);}
   if(curIdx<0)curIdx=Math.floor(pickerItems.length/2);
   pickerIndex=curIdx;
   renderWheel();
@@ -1709,9 +1694,15 @@ function confirmPicker(){
   }else if(pickerType==='height'){
     selected.height=parseFloat(val);
     document.getElementById('height-trigger').textContent=val;
-  }else{
+  }else if(pickerType==='weight'){
     selected.weight=parseFloat(val);
     document.getElementById('weight-trigger').textContent=val;
+  }else if(pickerType==='vaccine'){
+    selected.vaccine=val;
+    document.getElementById('vac-trigger').textContent=val;
+    var customGroup=document.getElementById('vac-custom-group');
+    if(val==='其他'){customGroup.style.display='block';}
+    else{customGroup.style.display='none';}
   }
   closePicker();
   updatePreview();
@@ -1937,13 +1928,21 @@ async function submitMed(){
   else{alert('保存失败：'+data.error);}
 }
 async function submitVac(){
-  const rawName=document.getElementById('vac-name').value;
-  const check=normalizeVaccine(rawName);
-  if(!check.ok){alert(check.error);return;}
+  var vacName='';
+  if(selected.vaccine==='其他'){
+    vacName=document.getElementById('vac-custom').value.trim();
+    if(!vacName){alert('请输入自定义疫苗名称');return;}
+  }else if(selected.vaccine){
+    var check=normalizeVaccine(selected.vaccine);
+    if(!check.ok){alert(check.error);return;}
+    vacName=check.name;
+  }else{
+    alert('请选择疫苗');return;
+  }
   const payload={
     type:'vaccine',
     date:document.getElementById('vac-date').value,
-    vaccine:check.name,
+    vaccine:vacName,
     dose:document.getElementById('vac-dose').value,
     auth_code:'20240313'
   };
@@ -1952,6 +1951,13 @@ async function submitVac(){
   if(data.ok){alert('已保存疫苗记录！');window.location.href='/web/med';}
   else{alert('保存失败：'+data.error);}
 }
+// 成长记录日期默认当天
+(function(){
+  var d=new Date();
+  var todayStr=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  selected.date=todayStr;
+  document.getElementById('date-trigger').textContent=todayStr;
+})();
 // 初始预览
 updatePreview();
 </script>
