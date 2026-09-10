@@ -254,6 +254,18 @@
       "medication": "药方明细\n1. 鸡内金 6g\n2. (集)山药 10g\n3. 麦芽 20g\n4. 稻芽 20g\n5. (集)薏苡仁 20g\n6. 神曲 10g\n7. (集)茯苓 6g\n8. 姜半夏 5g\n9. 白扁豆 6g\n10. (集)陈皮 5g\n11. 蜣螂菊 12g\n12. (集)连翘 6g\n13. (集)太子参 12g\n14. 首乌藤 12g（共7剂，代煎，每袋50ml）"
     },
     {
+      "date": "2026-09-09",
+      "type": "illness",
+      "hospital": "福建省儿童医院",
+      "department": "中医科",
+      "doctor": "",
+      "chief_complaint": "儿童型生长不足",
+      "exam": "",
+      "diagnosis": "",
+      "advice": "继续开中药7天，后续需要患者面诊，确认药物调整。",
+      "medication": ""
+    },
+    {
       "date": "2026-09-10",
       "type": "illness",
       "hospital": "兰彩莲牙科诊所",
