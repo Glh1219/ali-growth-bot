@@ -252,6 +252,18 @@
       "diagnosis": "儿童型生长不足",
       "advice": "",
       "medication": "药方明细\n1. 鸡内金 6g\n2. (集)山药 10g\n3. 麦芽 20g\n4. 稻芽 20g\n5. (集)薏苡仁 20g\n6. 神曲 10g\n7. (集)茯苓 6g\n8. 姜半夏 5g\n9. 白扁豆 6g\n10. (集)陈皮 5g\n11. 蜣螂菊 12g\n12. (集)连翘 6g\n13. (集)太子参 12g\n14. 首乌藤 12g（共7剂，代煎，每袋50ml）"
+    },
+    {
+      "date": "2026-09-10",
+      "type": "illness",
+      "hospital": "兰彩莲牙科诊所",
+      "department": "牙科",
+      "doctor": "",
+      "chief_complaint": "牙齿生长情况评估、牙结石/牙垢情况检查",
+      "exam": "已长20颗牙，符合生长规律",
+      "diagnosis": "牙齿生长情况正常、牙结石正常",
+      "advice": "饭后刷牙，学会刷牙后漱口",
+      "medication": ""
     }
   ],
   "vaccine_records": [
