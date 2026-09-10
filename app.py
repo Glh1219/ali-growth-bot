@@ -15,9 +15,11 @@ import re
 import json
 import time
 import hashlib
+import base64
 import xml.etree.ElementTree as ET
 from flask import Flask, request, abort, render_template_string, send_file, jsonify, Response
 from zhipuai import ZhipuAI
+import urllib.request
 
 app = Flask(__name__)
 
@@ -54,14 +56,70 @@ WHO 0-2岁男孩身高参考（P50中位数）：
 回复时不要提及你是AI或大模型，直接以"成长助手"身份回复。"""
 
 
-# ============ 数据存储（JSON文件） ============
+# ============ 数据存储（JSON文件 + GitHub同步） ============
 DATA_FILE = "/tmp/growth_data.json"
+GH_TOKEN = os.environ.get("GH_TOKEN", "")
+GH_REPO = "Glh1219/ali-growth-bot"
+GH_DATA_PATH = "data.json"
+_GH_DATA_SHA = None  # 缓存 data.json 的 SHA，用于更新
 
-def load_data():
-    """加载数据文件"""
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+def _gh_api(method, path, body=None):
+    """调用 GitHub Contents API"""
+    url = "https://api.github.com/repos/{}/contents/{}".format(GH_REPO, GH_DATA_PATH)
+    headers = {
+        "Authorization": "Bearer " + GH_TOKEN,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if body is not None:
+        payload = json.dumps(body).encode("utf-8")
+    else:
+        payload = None
+    req = urllib.request.Request(url, data=payload, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw) if raw else {}
+    except Exception as e:
+        print("[GH_SYNC] {} {} failed: {}".format(method, path, e))
+        return None
+
+def _gh_pull_data():
+    """从 GitHub 拉取 data.json，返回 (data, sha) 或 (None, None)"""
+    global _GH_DATA_SHA
+    if not GH_TOKEN:
+        return None, None
+    result = _gh_api("GET", GH_DATA_PATH)
+    if not result or "content" not in result:
+        return None, None
+    _GH_DATA_SHA = result.get("sha")
+    try:
+        content = base64.b64decode(result["content"]).decode("utf-8")
+        return json.loads(content), _GH_DATA_SHA
+    except Exception as e:
+        print("[GH_PULL] decode failed: {}".format(e))
+        return None, None
+
+def _gh_push_data(data):
+    """推送 data.json 到 GitHub"""
+    global _GH_DATA_SHA
+    if not GH_TOKEN:
+        return False
+    content = json.dumps(data, ensure_ascii=False, indent=2)
+    b64 = base64.b64encode(content.encode("utf-8")).decode("ascii")
+    body = {"message": "auto backup from render @ " + time.strftime("%Y-%m-%d %H:%M:%S"), "content": b64}
+    if _GH_DATA_SHA:
+        body["sha"] = _GH_DATA_SHA
+    result = _gh_api("PUT", GH_DATA_PATH, body)
+    if result and "content" in result:
+        _GH_DATA_SHA = result["content"].get("sha")
+        print("[GH_PUSH] OK, sha={}".format(_GH_DATA_SHA))
+        return True
+    print("[GH_PUSH] failed")
+    return False
+
+def _default_data():
+    """返回初始默认数据"""
     return {
         "child": {
             "name": "阿鲤", "gender": "M", "birth_date": "2024-03-13",
@@ -124,9 +182,34 @@ def load_data():
     }
 
 def save_data(data):
-    """保存数据文件"""
+    """保存数据文件（本地 + GitHub 同步）"""
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    # 异步推送到 GitHub（不阻塞响应）
+    try:
+        _gh_push_data(data)
+    except Exception as e:
+        print("[SAVE] gh push error: {}".format(e))
+
+
+def load_data():
+    """加载数据文件（优先 GitHub，其次本地 /tmp，最后默认值）"""
+    # 1. 尝试从 GitHub 拉取
+    gh_data, gh_sha = _gh_pull_data()
+    if gh_data:
+        # 同步写入本地缓存
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(gh_data, f, ensure_ascii=False, indent=2)
+        print("[LOAD] loaded from GitHub, sha={}".format(gh_sha))
+        return gh_data
+    # 2. 尝试本地文件
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            print("[LOAD] loaded from local /tmp")
+            return json.load(f)
+    # 3. 默认值
+    print("[LOAD] using default data")
+    return _default_data()
 
 
 # ============ 消息解析 ============
