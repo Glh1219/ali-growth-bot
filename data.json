@@ -82,6 +82,12 @@
       "height_cm": 87.0,
       "weight_kg": 12.5,
       "source": "web"
+    },
+    {
+      "date": "2026-09-20",
+      "height_cm": 86.5,
+      "weight_kg": 12.6,
+      "source": "web"
     }
   ],
   "medical_records": [
