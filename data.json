@@ -282,6 +282,18 @@
       "diagnosis": "牙齿生长情况正常、牙结石正常",
       "advice": "饭后刷牙，学会刷牙后漱口",
       "medication": ""
+    },
+    {
+      "date": "2026-09-20",
+      "type": "illness",
+      "hospital": "福建省儿童医院",
+      "department": "中医科",
+      "doctor": "",
+      "chief_complaint": "儿童型生长不足（复诊）\n饮食、睡眠、生长发育均未见改善",
+      "exam": "",
+      "diagnosis": "",
+      "advice": "药物仅为体质调理，实际效果需考虑个体差异。",
+      "medication": "调整中药药剂，新增黄莲，14天量。吃完停药。"
     }
   ],
   "vaccine_records": [
